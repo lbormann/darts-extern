@@ -1,0 +1,16 @@
+{
+  "name": "autodarts_extern",
+  "version": "1.0.0",
+  "description": "Synchronizes an autodarts.io match with extern dart-platforms",
+  "author": "wusaaa",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "config": "^3.3.7",
+    "express": "^4.18.1",
+    "puppeteer": "^16.2.0",
+    "minimist": "^1.2.6"
+  }
+}
