@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const puppeteer = require('puppeteer');
-// const config = require('config');
 const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
@@ -22,7 +21,6 @@ let _page;
 
 
 async function setupLidarts(page){
-  // await page.setViewport({width: 0, height: 0});
   await page.goto(lidartsUrl, {waitUntil: 'networkidle2'});
   // await page.waitForTimeout(1000); 
 
@@ -48,31 +46,76 @@ async function setupLidarts(page){
   return text;
 }
 
+async function waitLidartsMatch(page){
+   // wait for match-shot-modal
+  await page.waitForSelector('#match-shot-modal', {visible: true, timeout: 0});
+  console.log('gameshot & match');
 
-async function setupAutodarts(points){
-  var page = await _browser.newPage();
-  // await page.setViewport({width: 0, height: 0});
-  await page.goto(autodartsUrl, {waitUntil: 'networkidle2'});
-  // await page.waitForTimeout(1500);
-  // await page.waitForNavigation()
+  // wait a bit, so the user can see the match result
+  await page.waitForTimeout(5000);
 
-    // user login required?
-    const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
-    if(buttonLogout){
-      console.log("Autodarts: user already logged in!");
-    }else{
-      console.log("Autodarts: login user!");
-      await page.focus("#username");
-      await page.keyboard.type(autodartsUser);
-      await page.focus("#password");
-      await page.keyboard.type(autodartsPassword);
+  process.exit(0);
+}
 
-      const loginButton = await page.waitForSelector('#kc-login', {visible: true});
-      await loginButton.click();
+async function waitLidartsGame(page){
+    // wait for game-shot-modal
+    await page.waitForSelector('#game-shot-modal', {visible: true, timeout: 0});
+    console.log('gameshot');
 
-      // await page.waitForNavigation()
-      await page.waitForTimeout(1000);
-    }
+    // wait for dialog to close, so its NOT triggered/ recognized on next run
+    await page.waitForTimeout(4000);
+    
+    return true;
+}
+
+async function loopAutodarts(points){
+  // Autodarts-page
+  const pages = (await _browser.pages());
+  
+  const [buttonAbort] = await pages[2].$x("//button[contains(.,'Abort')]");
+  if (buttonAbort) {
+      console.log('Autodarts: close current match');
+      await buttonAbort.click();
+      await pages[2].waitForTimeout(3000);
+  }else{
+    console.log('Autodarts: abort-button not found');
+  }
+
+  setupAutodarts(points, false, pages[2]);
+
+  waitLidartsGame(pages[1]).then((val) => {
+    loopAutodarts(points);
+  });
+}
+
+
+async function setupAutodarts(points, nav=true, pageExtern=false){
+  if(nav == true){
+    var page = await _browser.newPage();
+    await page.goto(autodartsUrl, {waitUntil: 'networkidle2'});
+    // await page.waitForTimeout(1500);
+    // await page.waitForNavigation()
+  }else{
+    var page = pageExtern;
+  }
+
+  // user login required?
+  const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
+  if(buttonLogout){
+    console.log("Autodarts: user already logged in!");
+  }else{
+    console.log("Autodarts: login user!");
+    await page.focus("#username");
+    await page.keyboard.type(autodartsUser);
+    await page.focus("#password");
+    await page.keyboard.type(autodartsPassword);
+
+    const loginButton = await page.waitForSelector('#kc-login', {visible: true});
+    await loginButton.click();
+
+    // await page.waitForNavigation()
+    await page.waitForTimeout(1000);
+  }
 
 
   // TODO: find 'dark-mode-button' if available
@@ -145,16 +188,16 @@ if (!args.extern_platform || supportedExternPlatforms.indexOf(args.extern_platfo
   process.exit(0);
 }
 
-const autodartsUser = args.autodarts_user; // config.get('autodarts_user');
-const autodartsPassword = args.autodarts_password; // config.get('autodarts_password');
+const autodartsUser = args.autodarts_user; 
+const autodartsPassword = args.autodarts_password;
 const externPlatform = args.extern_platform;
 
 if (externPlatform == 'lidarts' && (!args.lidarts_user || !args.lidarts_password)){
   console.log('"--lidarts_user" and "--lidarts_password" is required');
   process.exit(0);
 }
-const lidartsUser = args.lidarts_user;           // config.get('lidarts_user');
-const lidartsPassword = args.lidarts_password;   // config.get('lidarts_password');
+const lidartsUser = args.lidarts_user;           
+const lidartsPassword = args.lidarts_password; 
 
 
 
@@ -191,42 +234,14 @@ puppeteer
 .then((browser) => (_browser = browser))
 .then((browser) => (_page = browser.newPage())
 .then((page) => {
-    setupLidarts(page).then((p) => {
-      setupAutodarts(p);
-    });
+
+      setupLidarts(page).then((points) => {
+        waitLidartsMatch(page);
+        setupAutodarts(points);
+      });
+
+      waitLidartsGame(page).then((val) => {
+        loopAutodarts();
+      });
+        
 }));
-
-
-  
-
-
-
-
-
-
-
-
-
-// // solange bis benutzer ESP drückt
-// while(1){
-//   eDP = askForExternDartsPlatform();
-
-//   switch (eDP) {
-//     case "lidarts":
-//       waitForExternMatch();
-//       break;
-//     case "webcamdarts":
-//       break;
-//     // default:
-//     //   break;
-//   }
-
-// }
-
-
-function askForExternDartsPlatform(){
-  var externDartsPlatform = "lidarts";
-
-  return externDartsPlatform;
-}
-

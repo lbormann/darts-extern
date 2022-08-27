@@ -47,6 +47,7 @@ The app crashes when you enter wrong password or more generel when your login da
 
 ## TODOs
 - support bulling and other game-config stuff
+- prevent dark-/light-mode switch
 
 ### Done
 - Maximize windows
