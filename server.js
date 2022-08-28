@@ -12,7 +12,7 @@ const supportedExternPlatforms = ['lidarts']
 
 const autodartsUrl = "https://autodarts.io";
 const lidartsUrl = "https://lidarts.org/login";
-
+DEBUG = false
 
 
 let _browser;
@@ -27,9 +27,7 @@ async function setupLidarts(page){
   // user login required?
   const [buttonLogout] = await page.$x("//a[contains(@href,'/logout')]/@href");
 
-  if(buttonLogout){
-    console.log("Lidarts: user already logged in!");
-  }else{
+  if(!buttonLogout){
     console.log("Lidarts: login user!");
     await page.focus("#email");
     await page.keyboard.type(lidartsUser);
@@ -49,10 +47,23 @@ async function setupLidarts(page){
 async function waitLidartsMatch(page){
    // wait for match-shot-modal
   await page.waitForSelector('#match-shot-modal', {visible: true, timeout: 0});
-  console.log('gameshot & match');
+  console.log('Lidarts: gameshot & match');
+
+  // TODO: DRY..
+  // Autodarts-page
+  const pages = (await _browser.pages());
+
+  const [buttonAbort] = await pages[2].$x("//button[contains(.,'Abort')]");
+  if (buttonAbort) {
+      console.log('Autodarts: close current game');
+      await buttonAbort.click();
+      await pages[2].waitForTimeout(2000);
+  }else{
+    console.log('Autodarts: Abort-button not found');
+  }
 
   // wait a bit, so the user can see the match result
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(timeBeforeExit);
 
   process.exit(0);
 }
@@ -60,7 +71,7 @@ async function waitLidartsMatch(page){
 async function waitLidartsGame(page){
     // wait for game-shot-modal
     await page.waitForSelector('#game-shot-modal', {visible: true, timeout: 0});
-    console.log('gameshot');
+    console.log('Lidarts: gameshot');
 
     // wait for dialog to close, so its NOT triggered/ recognized on next run
     await page.waitForTimeout(4000);
@@ -74,11 +85,11 @@ async function loopAutodarts(points){
   
   const [buttonAbort] = await pages[2].$x("//button[contains(.,'Abort')]");
   if (buttonAbort) {
-      console.log('Autodarts: close current match');
+      console.log('Autodarts: close current game');
       await buttonAbort.click();
-      await pages[2].waitForTimeout(3000);
+      await pages[2].waitForTimeout(2000);
   }else{
-    console.log('Autodarts: abort-button not found');
+    console.log('Autodarts: Abort-button not found');
   }
 
   setupAutodarts(points, false, pages[2]);
@@ -101,9 +112,7 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
 
   // user login required?
   const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
-  if(buttonLogout){
-    console.log("Autodarts: user already logged in!");
-  }else{
+  if(!buttonLogout){
     console.log("Autodarts: login user!");
     await page.focus("#username");
     await page.keyboard.type(autodartsUser);
@@ -160,6 +169,67 @@ async function inputThrow(page, throwPoints){
     await page.focus("#score_value");
     await page.keyboard.type(throwPoints);
     await page.keyboard.press('Enter');
+
+    // TODO: best-practice..
+    if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
+      await page.waitForTimeout(250);
+      console.log('Lidarts: skip dart modals');
+    
+      // <button type="button" class="btn btn-primary double-missed-1 btn-lg mt-2" data-dismiss="modal" id="double-missed-1">1</button>
+      try {
+        buttonMissedZero = await page.waitForSelector('#double-missed-0', {visible: true, timeout: 1500});
+        await buttonMissedZero.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('button 0 not there');
+      }
+      try {
+        buttonMissedOne = await page.waitForSelector('#double-missed-1', {visible: true, timeout: 1500});
+        await buttonMissedOne.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('button 1 not there');
+      }
+      try {
+        buttonMissedTwo = await page.waitForSelector('#double-missed-2', {visible: true, timeout: 1500});
+        await buttonMissedTwo.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('button 2 not there');
+      }
+      try {
+        buttonMissedThree = await page.waitForSelector('#double-missed-3', {visible: true, timeout: 1500});
+        await buttonMissedThree.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('button 3 not there');
+      }
+
+      // <button type="button" class="btn btn-primary btn-lg mt-2" data-dismiss="modal" id="to-finish-3">3</button>
+      try {
+        buttonFinishOne = await page.waitForSelector('#to-finish-1', {visible: true, timeout: 1500});
+        await buttonFinishOne.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('buttonf 1 not there');
+      }
+      try {
+        buttonFinishTwo = await page.waitForSelector('#to-finish-2', {visible: true, timeout: 1500});
+        await buttonFinishTwo.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('buttonf 2 not there');
+      }
+      try {
+        buttonFinishThree = await page.waitForSelector('#to-finish-3', {visible: true, timeout: 1500});
+        await buttonFinishThree.click();
+        await page.waitForTimeout(100);
+      } catch(error) {
+        // console.log('buttonf 3 not there');
+      }
+
+
+    }
 }
 
 
@@ -175,6 +245,7 @@ console.log('SUPPORTED EXTERN-PLATFORMS: ' + supportedExternPlatforms)
 console.log('\r\n')
 
 
+// Check for required arguments
 if (!args.autodarts_user) {
   console.log('"--autodarts_user" is required');
   process.exit(0);
@@ -187,30 +258,47 @@ if (!args.extern_platform || supportedExternPlatforms.indexOf(args.extern_platfo
   console.log('"--extern_platform" is required. Supported values: ' + supportedExternPlatforms);
   process.exit(0);
 }
-
-const autodartsUser = args.autodarts_user; 
-const autodartsPassword = args.autodarts_password;
-const externPlatform = args.extern_platform;
-
-if (externPlatform == 'lidarts' && (!args.lidarts_user || !args.lidarts_password)){
+if (args.extern_platform == 'lidarts' && (!args.lidarts_user || !args.lidarts_password)){
   console.log('"--lidarts_user" and "--lidarts_password" is required');
   process.exit(0);
 }
+
+
+const autodartsUser = args.autodarts_user; 
+const autodartsPassword = args.autodarts_password;
+var timeBeforeExit = args.time_before_exit;
+const externPlatform = args.extern_platform;
 const lidartsUser = args.lidarts_user;           
 const lidartsPassword = args.lidarts_password; 
+var lidartsSkipDartModals = args.lidarts_skip_dart_modals;
+
+// Check for optional arguments
+if(!timeBeforeExit){
+  timeBeforeExit = 10000;
+}
+if(!lidartsSkipDartModals){
+  lidartsSkipDartModals = false;
+}
 
 
 
 app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', function (req, res) {
   // console.log(req);
+  var user = req.params.user;
+  var throwNumber = req.params.throwNumber;
   var throwPoints = req.params.throwPoints;
+  var pointsLeft = req.params.pointsLeft;
+  var busted = req.params.busted;
+  var variant = req.params.variant;
+  var msg = 'Throw received - user:' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
+  console.log(msg);
 
   _page
   .then((page) => {
     inputThrow(page, throwPoints);
   });
 
-  res.end('Throw received')
+  res.end(msg)
 });
 
 
@@ -227,7 +315,7 @@ puppeteer
   userDataDir: 'myChromeSession',
   headless: false, 
   defaultViewport: {width: 0, height: 0},
-  // devtools: true,
+  devtools: DEBUG,
   args: ['--start-maximized', '--hide-crash-restore-bubble'],
   // slowMo: 250, // slow down by 250ms
 })

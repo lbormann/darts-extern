@@ -2,6 +2,7 @@ node_modules
 myChromeSession
 package-lock.json
 win-start.bat
+test.js
 
 # VSCode (Editor)
 /.elixir_ls

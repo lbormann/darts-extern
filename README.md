@@ -35,8 +35,16 @@ Arguments:
 - --autodarts_user [Required]
 - --autodarts_password [Required]
 - --extern_platform [Required] [Possible values: lidarts]
+- --time_before_exit [Optional] [Default: 10000] [Possible values: 0..Inf]
 - --lidarts_user [Required]
 - --lidarts_password [Required]
+- --lidarts_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
+
+
+### Test for working throw-receiver
+
+To test if the app can receive throw-information, start the app, open a new tab in a browser and type "http://localhost:8080/throw/mustermann/1/50/400/false/x01"
+if everything works properly you should see a message 'Throw received - ...'
 
 
 ## BUGS
@@ -46,15 +54,23 @@ The app crashes when you enter wrong password or more generel when your login da
 
 
 ## TODOs
+- on new AD-game, choose board automatically.
+- stop about-tab
+- Support other games modes (currently only X01 support)
 - support bulling and other game-config stuff
 - prevent dark-/light-mode switch
+- support projection from lidarts to autodarts (multiple players)
+- make port configurable
+- add Readme-section for updating
+- add platform webcamdarts
+
 
 ### Done
 - Maximize windows
 - disable chromium restore pages function
-
-### In queue
-- Support other games modes (currently only X01 support)
+- handle throws after busted
+- kill AD-match when lidarts-match finished
+- handle how many darts used in lidarts
 
 
 ## LAST WORDS
