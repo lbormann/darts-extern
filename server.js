@@ -21,7 +21,14 @@ let _page;
 
 
 async function setupLidarts(page){
-  await page.goto(lidartsUrl, {waitUntil: 'networkidle2'});
+
+  // kills initial browser-tab
+  const pages = (await _browser.pages());
+  if(pages.length >= 2){
+    await pages[0].close();
+  }
+
+  await page.goto(lidartsUrl, {waitUntil: 'networkidle0'});
   // await page.waitForTimeout(1000); 
 
   // user login required?
@@ -38,10 +45,15 @@ async function setupLidarts(page){
   await page.waitForTimeout(200);
 
   // wait for initial score to get x01-start points
+  // that is fucking ugly..
+  await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
+  await page.waitForFunction(
+    'parseInt(document.querySelector("#p1_score").innerText) > 100',
+    {visible: true, timeout: 0}
+  );
   const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
-  await page.waitForTimeout(1000);
-  const text = await (await pointsElement.getProperty('textContent')).jsonValue();
-  return text;
+  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  return initialPoints;
 }
 
 async function waitLidartsMatch(page){
@@ -50,14 +62,13 @@ async function waitLidartsMatch(page){
   console.log('Lidarts: gameshot & match');
 
   // TODO: DRY..
-  // Autodarts-page
   const pages = (await _browser.pages());
 
-  const [buttonAbort] = await pages[2].$x("//button[contains(.,'Abort')]");
+  const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
   if (buttonAbort) {
       console.log('Autodarts: close current game');
       await buttonAbort.click();
-      await pages[2].waitForTimeout(2000);
+      await pages[1].waitForTimeout(2000);
   }else{
     console.log('Autodarts: Abort-button not found');
   }
@@ -80,21 +91,20 @@ async function waitLidartsGame(page){
 }
 
 async function loopAutodarts(points){
-  // Autodarts-page
   const pages = (await _browser.pages());
   
-  const [buttonAbort] = await pages[2].$x("//button[contains(.,'Abort')]");
+  const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
   if (buttonAbort) {
       console.log('Autodarts: close current game');
       await buttonAbort.click();
-      await pages[2].waitForTimeout(2000);
+      await pages[1].waitForTimeout(2000);
   }else{
     console.log('Autodarts: Abort-button not found');
   }
 
-  setupAutodarts(points, false, pages[2]);
+  setupAutodarts(points, false, pages[1]);
 
-  waitLidartsGame(pages[1]).then((val) => {
+  waitLidartsGame(pages[0]).then((val) => {
     loopAutodarts(points);
   });
 }
@@ -103,29 +113,28 @@ async function loopAutodarts(points){
 async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
     var page = await _browser.newPage();
-    await page.goto(autodartsUrl, {waitUntil: 'networkidle2'});
-    // await page.waitForTimeout(1500);
+    await page.goto(autodartsUrl, {waitUntil: 'networkidle0'});
+    // await page.waitForTimeout(2000);
     // await page.waitForNavigation()
+
+    // user login required?
+    const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
+    if(!buttonLogout){
+      console.log("Autodarts: login user!");
+      await page.focus("#username");
+      await page.keyboard.type(autodartsUser);
+      await page.focus("#password");
+      await page.keyboard.type(autodartsPassword);
+
+      const loginButton = await page.waitForSelector('#kc-login', {visible: true});
+      await loginButton.click();
+
+      // await page.waitForNavigation()
+      await page.waitForTimeout(2000);
+    }
   }else{
     var page = pageExtern;
   }
-
-  // user login required?
-  const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
-  if(!buttonLogout){
-    console.log("Autodarts: login user!");
-    await page.focus("#username");
-    await page.keyboard.type(autodartsUser);
-    await page.focus("#password");
-    await page.keyboard.type(autodartsPassword);
-
-    const loginButton = await page.waitForSelector('#kc-login', {visible: true});
-    await loginButton.click();
-
-    // await page.waitForNavigation()
-    await page.waitForTimeout(1000);
-  }
-
 
   // TODO: find 'dark-mode-button' if available
   // await page.$eval('button[aria-label="Switch to dark mode"]', el => el.click());
@@ -133,33 +142,41 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
   // await buttonDarkMode.click();
 
 
-  await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle2'});
-  // await page.waitForTimeout(1000); 
+  await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle0'});
+  // await page.waitForTimeout(2000); 
 
-  const [buttonPoints] = await page.$x("//button[contains(., " + points + ")]");
-  if (buttonPoints) {
-      await buttonPoints.click();
-  }else{
-    console.log('Autodarts does not support X01 with ' + points);
+  // only when we are visiting first time we need to configure the game
+  if(nav == true){
+    const [buttonPoints] = await page.$x("//button[contains(., " + points + ")]");
+    if (buttonPoints) {
+        await buttonPoints.click();
+    }else{
+      console.log('Autodarts does not support X01 with ' + points);
+    }
+    await page.waitForTimeout(150);
+  
+    const [buttonVisibility] = await page.$x("//button[contains(.,'Private')]");
+    if (buttonVisibility) {
+        await buttonVisibility.click();
+    }
+    await page.waitForTimeout(150);
   }
 
-  await page.waitForTimeout(300);
-
-  const [buttonVisibility] = await page.$x("//button[contains(.,'Private')]");
-  if (buttonVisibility) {
-      await buttonVisibility.click();
-  }
-
-  await page.waitForTimeout(300);
-
-  const [buttonOpenLobby] = await page.$x("//button[contains(., 'Open Lobby')]");
+  // go to lobby-area
+  const [buttonOpenLobby] = await page.$x("//button[contains(.,'Open Lobby')]");
   if (buttonOpenLobby) {
       await buttonOpenLobby.click();
   }
-
-  await page.waitForTimeout(500);
-
-  const [buttonStartMatch] = await page.$x("//button[contains(., 'Start')]");
+  await page.waitForTimeout(1500);
+  
+  // only when we are visiting first time we need to configure the game
+  if(nav == true){
+    // there is only one select - we are lucky
+    await page.select('select', autodartsBoardId);
+  }
+  
+  // start the game
+  const [buttonStartMatch] = await page.$x("//button[contains(.,'Start')]");
   if (buttonStartMatch) {
       await buttonStartMatch.click();
   }
@@ -254,6 +271,10 @@ if (!args.autodarts_password) {
   console.log('"--autodarts_password" is required');
   process.exit(0);
 }
+if (!args.autodarts_board_id){
+  console.log('"--autodarts_board_id" is required');
+  process.exit(0);
+}
 if (!args.extern_platform || supportedExternPlatforms.indexOf(args.extern_platform) < 0) {
   console.log('"--extern_platform" is required. Supported values: ' + supportedExternPlatforms);
   process.exit(0);
@@ -266,6 +287,7 @@ if (args.extern_platform == 'lidarts' && (!args.lidarts_user || !args.lidarts_pa
 
 const autodartsUser = args.autodarts_user; 
 const autodartsPassword = args.autodarts_password;
+const autodartsBoardId = args.autodarts_board_id
 var timeBeforeExit = args.time_before_exit;
 const externPlatform = args.extern_platform;
 const lidartsUser = args.lidarts_user;           
