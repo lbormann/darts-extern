@@ -56,7 +56,6 @@ The app crashes when you enter wrong password or more generel when your login da
 
 ## TODOs
 - Support other games modes (currently only X01 support)
-- prevent dark-/light-mode switch
 - support projection from lidarts to autodarts (multiple players)
 - make port configurable
 - add Readme-section for app-updates
@@ -73,6 +72,7 @@ The app crashes when you enter wrong password or more generel when your login da
 - on new AD-game, choose board automatically
 - stop about-tab
 - support bulling and other game-config stuff
+- prevent dark-/light-mode switch
 
 
 ## LAST WORDS

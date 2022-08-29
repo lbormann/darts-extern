@@ -112,10 +112,13 @@ async function loopAutodarts(points){
 
 async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
-    var page = await _browser.newPage();
+
+    // var page = await _browser.newPage();
+    var context = await _browser.createIncognitoBrowserContext();
+    var page = await context.newPage();
     await page.goto(autodartsUrl, {waitUntil: 'networkidle0'});
-    // await page.waitForTimeout(2000);
-    // await page.waitForNavigation()
+    // await page.waitForTimeout(1000);
+    // await page.waitForNavigation();
 
     // user login required?
     const [buttonLogout] = await page.$x("//button[contains(.,'Sign Out')]");
@@ -132,14 +135,15 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
       // await page.waitForNavigation()
       await page.waitForTimeout(2000);
     }
+
+    // switches to dark-mode
+    const [buttonDarkMode] = await page.$x("//button[@aria-label='Switch to light mode']");
+    if (buttonDarkMode) {
+        await buttonDarkMode.click();
+    }
   }else{
     var page = pageExtern;
   }
-
-  // TODO: find 'dark-mode-button' if available
-  // await page.$eval('button[aria-label="Switch to dark mode"]', el => el.click());
-  // const buttonDarkMode = await page.waitForSelector('button[aria-label=\'Switch to dark mode\']', {visible: true});
-  // await buttonDarkMode.click();
 
 
   await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle0'});
@@ -338,7 +342,7 @@ puppeteer
   headless: false, 
   defaultViewport: {width: 0, height: 0},
   devtools: DEBUG,
-  args: ['--start-maximized', '--hide-crash-restore-bubble'],
+  args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
   // slowMo: 250, // slow down by 250ms
 })
 .then((browser) => (_browser = browser))
