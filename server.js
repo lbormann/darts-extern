@@ -44,6 +44,14 @@ async function setupLidarts(page){
   }
   await page.waitForTimeout(200);
 
+  // Send start-message
+  if(lidartsChatMessageStart != ""){
+    await page.waitForSelector('#message', {visible: true, timeout: 0});
+    await page.focus("#message");
+    await page.keyboard.type(lidartsChatMessageStart);
+    await page.keyboard.press('Enter');
+  }
+
   // wait for initial score to get x01-start points
   // that is fucking ugly..
   await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
@@ -60,6 +68,15 @@ async function waitLidartsMatch(page){
    // wait for match-shot-modal
   await page.waitForSelector('#match-shot-modal', {visible: true, timeout: 0});
   console.log('Lidarts: gameshot & match');
+
+  // Send end-message
+  if(lidartsChatMessageEnd != ""){
+    await page.waitForTimeout(4000);
+    await page.waitForSelector('#message', {visible: true, timeout: 0});
+    await page.focus("#message");
+    await page.keyboard.type(lidartsChatMessageEnd);
+    await page.keyboard.press('Enter');
+  }
 
   // TODO: DRY..
   const pages = (await _browser.pages());
@@ -288,7 +305,7 @@ if (args.extern_platform == 'lidarts' && (!args.lidarts_user || !args.lidarts_pa
   process.exit(0);
 }
 
-
+var hostPort = args.host_port;
 const autodartsUser = args.autodarts_user; 
 const autodartsPassword = args.autodarts_password;
 const autodartsBoardId = args.autodarts_board_id
@@ -297,13 +314,24 @@ const externPlatform = args.extern_platform;
 const lidartsUser = args.lidarts_user;           
 const lidartsPassword = args.lidarts_password; 
 var lidartsSkipDartModals = args.lidarts_skip_dart_modals;
+var lidartsChatMessageStart = args.lidarts_chat_message_start;
+var lidartsChatMessageEnd = args.lidarts_chat_message_end;
 
 // Check for optional arguments
+if(!hostPort){
+  hostPort = 8080;
+}
 if(!timeBeforeExit){
   timeBeforeExit = 10000;
 }
 if(!lidartsSkipDartModals){
   lidartsSkipDartModals = false;
+}
+if(!lidartsChatMessageStart){
+  lidartsChatMessageStart = "";
+}
+if(!lidartsChatMessageEnd){
+  lidartsChatMessageEnd = "";
 }
 
 
@@ -329,7 +357,7 @@ app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', f
 
 
 // Start a http listener as receiver for throws
-var server = app.listen(8080, function () {
+var server = app.listen(hostPort, function () {
     var host = server.address().address
     var port = server.address().port
     console.log("Taking throws at http://%s:%s", host, port)
