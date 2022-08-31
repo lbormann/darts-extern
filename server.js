@@ -46,6 +46,9 @@ async function setupLidarts(page){
 
   // Send start-message
   if(lidartsChatMessageStart != ""){
+    await page.waitForTimeout(2500);
+    const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
+    await chatButton.click();
     await page.waitForSelector('#message', {visible: true, timeout: 0});
     await page.focus("#message");
     await page.keyboard.type(lidartsChatMessageStart);
@@ -72,6 +75,8 @@ async function waitLidartsMatch(page){
   // Send end-message
   if(lidartsChatMessageEnd != ""){
     await page.waitForTimeout(4000);
+    const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
+    await chatButton.click();
     await page.waitForSelector('#message', {visible: true, timeout: 0});
     await page.focus("#message");
     await page.keyboard.type(lidartsChatMessageEnd);
