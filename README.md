@@ -1,8 +1,17 @@
 # AUTODARTS-EXTERN
 
-Autodarts-extern automates multiple dart-platforms accordingly to the state of an https://autodarts.io. 
-By the time only https://lidarts.org is supported.
-A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points to autodarts-extern.
+Autodarts-extern automates multiple dart-platforms accordingly to the state of an https://autodarts.io match. 
+
+Supported dart-platforms:
+- https://lidarts.org
+- https://nakka.com/n01/online
+- https://dartboards.online
+
+Supported game-modes:
+- X01 Single-In, Double-Out
+
+A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from autodarts.io to this application.
+
 
 Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
@@ -34,20 +43,24 @@ Go to download-directory and type:
 
 ### General instruction to configure and run the application
 
-    node . --autodarts_user=<your-autodarts-email> -autodarts_password=<your-autodarts-password> --autodarts_board_id=<your-autodarts-board-id> --extern_platform=<lidarts> --lidarts_user=<your-lidarts-email> --lidarts_password=<your-lidarts-password>
+    node . --autodarts_user=<your-autodarts-email> -autodarts_password=<your-autodarts-password> --autodarts_board_id=<your-autodarts-board-id> --extern_platform=<lidarts | nakka | dartboards> --lidarts_user=<your-lidarts-email> --lidarts_password=<your-lidarts-password> ... see full list of arguments below
 
 Arguments:
 - --host_port [optional] [Default: 8080]
 - --autodarts_user [Required]
 - --autodarts_password [Required]
 - --autodarts_board_id [Required]
-- --extern_platform [Required] [Possible values: lidarts]
+- --extern_platform [Required] [Possible values: lidarts | nakka]
 - --time_before_exit [Optional] [Default: 10000] [Possible values: 0..Inf]
-- --lidarts_user [Required]
-- --lidarts_password [Required]
+- --lidarts_user [Required for extern_platform=lidarts]
+- --lidarts_password [Required for extern_platform=lidarts]
 - --lidarts_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 - --lidarts_chat_message_start [Optional]
 - --lidarts_chat_message_end [Optional]
+- --nakka_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
+- --dartboards_user [Required for extern_platform=dartboards]
+- --dartboards_password [Required for extern_platform=dartboards]
+- --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
 ### Shortcut for Windows
 
@@ -63,15 +76,14 @@ if everything works properly you should see a message 'Throw received - ...'
 ## BUGS
 
 It may be buggy. I've just coded it for fast fun with https://autodarts.io. You can give me feedback in Discord > wusaaa
-The app crashes when you enter wrong password or more generel when your login data are not correct.
 
 
 ## TODOs
-- auto-correction of AD-game when there is difference to lidarts-game
-- improve logic for choosing correct lidarts missed/finish-darts
+- auto-correction of AD-game when there is difference to extern-game
+- improve logic for choosing correct extern-missed/finish-darts
 - support other games modes (currently only X01 support)
-- support projection from lidarts to autodarts (multiple players)
-- add platform 'webcamdarts'
+- support projection from extern-platforms to autodarts (multiple players)
+- support https://www.webcamdarts.com
 - improve main automation code-structure
 
 
@@ -89,6 +101,8 @@ The app crashes when you enter wrong password or more generel when your login da
 - add start-script for windows usage
 - add Readme-section for app-updates
 - chat-message start- and end
+- support https://nakka.com/n01/online/
+- support https://dartboards.online
 
 
 ## LAST WORDS

@@ -9,6 +9,10 @@ node . --host_port="8080" ^
        --lidarts_password="TODO" ^
        --lidarts_skip_dart_modals="true" ^
        --lidarts_chat_message_start="Hi, GD! Automated darts-scoring - powered by autodarts.io - Enter the community: https://discord.gg/bY5JYKbmvM" ^
-       --lidarts_chat_message_end="Thanks GG, WP!"
+       --lidarts_chat_message_end="Thanks GG, WP!" ^
+       --nakka_skip_dart_modals="true" ^
+       --dartboards_user="TODO" ^
+       --dartboards_password="TODO" ^
+       --dartboards_skip_dart_modals="true"
 
-pause
+timeout 10

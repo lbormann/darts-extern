@@ -8,19 +8,27 @@ const { exit } = require('process');
 
 
 const supportedGameVariants = ['X01']
-const supportedExternPlatforms = ['lidarts']
+
+const lidarts = 'lidarts'
+const nakka = 'nakka'
+const dartboards = 'dartboards'
+const supportedExternPlatforms = [lidarts, nakka, dartboards]
 
 const autodartsUrl = "https://autodarts.io";
 const lidartsUrl = "https://lidarts.org/login";
+const nakkaUrl = "https://nakka.com/n01/online/n01_v2/setting.php"
+const dartboardsUrl = "https://dartboards.online"
+
+
 DEBUG = false
+
 
 
 let _browser;
 let _page;
 
 
-
-async function setupLidarts(page){
+async function setupExtern(page){
 
   // kills initial browser-tab
   const pages = (await _browser.pages());
@@ -28,6 +36,23 @@ async function setupLidarts(page){
     await pages[0].close();
   }
 
+  switch (externPlatform) {
+    case lidarts:
+      console.log('Setup: lidarts');
+      return await setupLidarts(page);
+      break;
+    case nakka:
+      console.log('Setup: nakka');
+      return await setupNakka(page);
+      break;
+    case dartboards:
+      console.log('Setup: dartboards');
+      return await setupDartboards(page);
+      break;
+  }
+}
+async function setupLidarts(page){
+  
   await page.goto(lidartsUrl, {waitUntil: 'networkidle0'});
   // await page.waitForTimeout(1000); 
 
@@ -66,41 +91,126 @@ async function setupLidarts(page){
   const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
   return initialPoints;
 }
+async function setupNakka(page){
+  
+  await page.goto(nakkaUrl, {waitUntil: 'networkidle0'});
+  // await page.waitForTimeout(1000); 
 
-async function waitLidartsMatch(page){
-   // wait for match-shot-modal
-  await page.waitForSelector('#match-shot-modal', {visible: true, timeout: 0});
-  console.log('Lidarts: gameshot & match');
-
-  // Send end-message
-  if(lidartsChatMessageEnd != ""){
-    await page.waitForTimeout(4000);
-    const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
-    await chatButton.click();
-    await page.waitForSelector('#message', {visible: true, timeout: 0});
-    await page.focus("#message");
-    await page.keyboard.type(lidartsChatMessageEnd);
-    await page.keyboard.press('Enter');
+  // user login required?
+  try {
+    await page.waitForSelector('#title_player_name', {visible: true, timeout: 2000});
+  } catch(error) {
+    console.log("Nakka: login user!");
   }
 
-  // TODO: DRY..
-  const pages = (await _browser.pages());
+  await page.waitForTimeout(200);
 
-  const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
-  if (buttonAbort) {
-      console.log('Autodarts: close current game');
-      await buttonAbort.click();
-      await pages[1].waitForTimeout(2000);
-  }else{
-    console.log('Autodarts: Abort-button not found');
+  const pointsElement = await page.waitForSelector('.p1left', {visible: true, timeout: 0});
+  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  return initialPoints;
+}
+async function setupDartboards(page){
+  
+  await page.goto(dartboardsUrl, {waitUntil: 'networkidle0'});
+  // await page.waitForTimeout(1000); 
+
+  // user login required?
+  const [buttonLogin] = await page.$x("//a[contains(@href,'https://dartboards.online/login')]/@href");
+
+  if(buttonLogin){
+    console.log("Dartboards: login user!");
+    await page.goto("https://dartboards.online/login", {waitUntil: 'networkidle0'});
+
+    await page.focus("#email");
+    await page.keyboard.type(dartboardsUser);
+    await page.focus("#password");
+    await page.keyboard.type(dartboardsPassword);
+    await page.$eval('button[type=submit]', el => el.click());
   }
+  await page.waitForTimeout(600);
+
+  // cookies acceptance required?
+  const [buttonCookieAccept] = await page.$x("//a[@aria-label='allow cookies']");
+  try {
+    if (buttonCookieAccept) {
+      await buttonCookieAccept.click();
+    }
+  } catch(error) {
+    // console.log('dartboards: error accepting cookies');
+  }
+
+  // wait for initial score to get x01-start points
+  // that is fucking ugly..
+  await page.waitForSelector('.game-player-score', {visible: true, timeout: 0});
+  await page.waitForFunction(
+    'parseInt(document.querySelector(".game-player-score").innerText) > 100',
+    {visible: true, timeout: 0}
+  );
+  const pointsElement = await page.waitForSelector('.game-player-score', {visible: true, timeout: 0});
+  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  return initialPoints;
+}
+
+async function waitExternMatch(page){
+  switch (externPlatform) {
+    case lidarts:
+      await waitLidartsMatch(page);
+      break;
+    case nakka:
+      await waitNakkaMatch(page);
+      break;
+    case dartboards:
+      await waitDartboardsMatch(page);
+      break;
+  }
+
+  await abortAutodartsGame()
 
   // wait a bit, so the user can see the match result
   await page.waitForTimeout(timeBeforeExit);
 
   process.exit(0);
 }
+async function waitLidartsMatch(page){
+    // wait for match-shot-modal
+    await page.waitForSelector('#match-shot-modal', {visible: true, timeout: 0});
+    console.log('Lidarts: gameshot & match');
+  
+    // Send end-message
+    if(lidartsChatMessageEnd != ""){
+      await page.waitForTimeout(4000);
+      const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
+      await chatButton.click();
+      await page.waitForSelector('#message', {visible: true, timeout: 0});
+      await page.focus("#message");
+      await page.keyboard.type(lidartsChatMessageEnd);
+      await page.keyboard.press('Enter');
+    }
+}
+async function waitNakkaMatch(page){
+  // wait for match-shot-modal
+  await page.waitForSelector('#todo', {visible: true, timeout: 0});
+  console.log('Nakka: gameshot & match');
+}
+async function waitDartboardsMatch(page){
+  // wait for match-shot-modal
+  await page.waitForSelector('#modal-game-results___BV_modal_title_', {visible: true, timeout: 0});
+  console.log('Dartboards: gameshot & match');
+}
 
+async function waitExternGame(page){
+  switch (externPlatform) {
+    case lidarts:
+      return await waitLidartsGame(page);
+      break;
+    case nakka:
+      return await waitNakkaGame(page);
+      break;
+    case dartboards:
+      return await waitDartboardsGame(page);
+      break;
+  }
+}
 async function waitLidartsGame(page){
     // wait for game-shot-modal
     await page.waitForSelector('#game-shot-modal', {visible: true, timeout: 0});
@@ -111,24 +221,184 @@ async function waitLidartsGame(page){
     
     return true;
 }
+async function waitNakkaGame(page){
+  // wait for game-shot-modal
+  // <div id="msg_ok" class="msg_button" style="padding: 11.565px 0px; margin: 0px 11.565px 11.565px 5.7825px;">OK</div>
+  buttonOk = await page.waitForSelector('#msg_ok', {visible: true, timeout: 0});
+  await buttonOk.click();
+  //await page.waitForSelector('#msg_text', {visible: true, timeout: 0});
+  console.log('Nakka: gameshot');
 
-async function loopAutodarts(points){
-  const pages = (await _browser.pages());
+  // wait for dialog to close, so its NOT triggered/ recognized on next run
+  await page.waitForTimeout(300);
   
-  const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
-  if (buttonAbort) {
-      console.log('Autodarts: close current game');
-      await buttonAbort.click();
-      await pages[1].waitForTimeout(2000);
-  }else{
-    console.log('Autodarts: Abort-button not found');
+  return true;
+}
+async function waitDartboardsGame(page){
+  // wait for game-shot-modal
+  await page.waitForSelector('#modal-leg-end___BV_modal_header_', {visible: true, timeout: 0});
+  
+  // <button data-v-2e80cb5e="" type="button" class="btn leg-button btn-success btn-lg"><span data-v-2e80cb5e="">Nächstes Leg starten</span></button>
+  const nextLegButton = await page.waitForSelector('.btn-success', {visible: true, timeout: 0});
+  nextLegButton.click();
+
+  console.log('Dartboards: gameshot');
+
+  // wait for dialog to close, so its NOT triggered/ recognized on next run
+  await page.waitForTimeout(300);
+  
+  return true;
+}
+
+async function inputThrow(page, throwPoints){
+  switch (externPlatform) {
+    case lidarts:
+      await inputThrowLidarts(page, throwPoints);
+      break;
+    case nakka:
+      await inputThrowNakka(page, throwPoints);
+      break;
+    case dartboards:
+      await inputThrowDartboards(page, throwPoints);
+      break;
   }
+}
+async function inputThrowLidarts(page, throwPoints){
+  await page.focus("#score_value");
+  await page.keyboard.type(throwPoints);
+  await page.keyboard.press('Enter');
 
-  setupAutodarts(points, false, pages[1]);
+  // TODO: correct AD-points when there is a difference to lidarts
 
-  waitLidartsGame(pages[0]).then((val) => {
-    loopAutodarts(points);
-  });
+  // TODO: best-practice..
+  if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
+    await page.waitForTimeout(250);
+    console.log('Lidarts: skip dart modals');
+  
+    // <button type="button" class="btn btn-primary double-missed-1 btn-lg mt-2" data-dismiss="modal" id="double-missed-1">1</button>
+    try {
+      buttonMissedZero = await page.waitForSelector('#double-missed-0', {visible: true, timeout: 1500});
+      await buttonMissedZero.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('button 0 not there');
+    }
+    try {
+      buttonMissedOne = await page.waitForSelector('#double-missed-1', {visible: true, timeout: 1500});
+      await buttonMissedOne.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('button 1 not there');
+    }
+    try {
+      buttonMissedTwo = await page.waitForSelector('#double-missed-2', {visible: true, timeout: 1500});
+      await buttonMissedTwo.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('button 2 not there');
+    }
+    try {
+      buttonMissedThree = await page.waitForSelector('#double-missed-3', {visible: true, timeout: 1500});
+      await buttonMissedThree.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('button 3 not there');
+    }
+
+    // <button type="button" class="btn btn-primary btn-lg mt-2" data-dismiss="modal" id="to-finish-3">3</button>
+    try {
+      buttonFinishOne = await page.waitForSelector('#to-finish-1', {visible: true, timeout: 1500});
+      await buttonFinishOne.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 1 not there');
+    }
+    try {
+      buttonFinishTwo = await page.waitForSelector('#to-finish-2', {visible: true, timeout: 1500});
+      await buttonFinishTwo.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 2 not there');
+    }
+    try {
+      buttonFinishThree = await page.waitForSelector('#to-finish-3', {visible: true, timeout: 1500});
+      await buttonFinishThree.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 3 not there');
+    }
+  }
+}
+async function inputThrowNakka(page, throwPoints){
+  // .score_input .p1score 
+  await page.focus(".input_area");
+  await page.keyboard.type(throwPoints);
+  await page.keyboard.press('Enter');
+
+  // TODO: correct AD-points when there is a difference to nakka
+
+  // TODO: best-practice..
+  if(nakkaSkipDartModals == true || nakkaSkipDartModals == "true" || nakkaSkipDartModals == "True"){
+    await page.waitForTimeout(250);
+    console.log('Nakka: skip dart modals');
+
+    try {
+      buttonFinishOne = await page.waitForSelector('#finish_first', {visible: true, timeout: 1500});
+      await buttonFinishOne.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 1 not there');
+    }
+    try {
+      buttonFinishSecond = await page.waitForSelector('#finish_second', {visible: true, timeout: 1500});
+      await buttonFinishSecond.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 2 not there');
+    }
+    try {
+      buttonFinishThird = await page.waitForSelector('#finish_third', {visible: true, timeout: 1500});
+      await buttonFinishThird.click();
+      await page.waitForTimeout(100);
+    } catch(error) {
+      // console.log('buttonf 3 not there');
+    }
+  }
+}
+async function inputThrowDartboards(page, throwPoints){
+  await page.focus(".outline-white");
+  await page.keyboard.type(throwPoints);
+  await page.keyboard.press('Enter');
+
+  // TODO: correct AD-points when there is a difference to dartboards
+
+  // TODO: best-practice..
+  if(dartboardsSkipDartModals == true || dartboardsSkipDartModals == "true" || dartboardsSkipDartModals == "True"){
+    await page.waitForTimeout(250);
+    console.log('Dartboards: skip dart modals');
+
+    // try {
+    //   buttonFinishOne = await page.waitForSelector('#finish_first', {visible: true, timeout: 1500});
+    //   await buttonFinishOne.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 1 not there');
+    // }
+    // try {
+    //   buttonFinishSecond = await page.waitForSelector('#finish_second', {visible: true, timeout: 1500});
+    //   await buttonFinishSecond.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 2 not there');
+    // }
+    // try {
+    //   buttonFinishThird = await page.waitForSelector('#finish_third', {visible: true, timeout: 1500});
+    //   await buttonFinishThird.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 3 not there');
+    // }
+  }
 }
 
 
@@ -207,75 +477,29 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
       await buttonStartMatch.click();
   }
 }
+async function loopAutodarts(points){
+  const pages = await abortAutodartsGame()
 
-async function inputThrow(page, throwPoints){
-    await page.focus("#score_value");
-    await page.keyboard.type(throwPoints);
-    await page.keyboard.press('Enter');
-
-    // TODO: correct AD-points when there is a difference to lidarts
-
-    // TODO: best-practice..
-    if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
-      await page.waitForTimeout(250);
-      console.log('Lidarts: skip dart modals');
-    
-      // <button type="button" class="btn btn-primary double-missed-1 btn-lg mt-2" data-dismiss="modal" id="double-missed-1">1</button>
-      try {
-        buttonMissedZero = await page.waitForSelector('#double-missed-0', {visible: true, timeout: 1500});
-        await buttonMissedZero.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('button 0 not there');
-      }
-      try {
-        buttonMissedOne = await page.waitForSelector('#double-missed-1', {visible: true, timeout: 1500});
-        await buttonMissedOne.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('button 1 not there');
-      }
-      try {
-        buttonMissedTwo = await page.waitForSelector('#double-missed-2', {visible: true, timeout: 1500});
-        await buttonMissedTwo.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('button 2 not there');
-      }
-      try {
-        buttonMissedThree = await page.waitForSelector('#double-missed-3', {visible: true, timeout: 1500});
-        await buttonMissedThree.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('button 3 not there');
-      }
-
-      // <button type="button" class="btn btn-primary btn-lg mt-2" data-dismiss="modal" id="to-finish-3">3</button>
-      try {
-        buttonFinishOne = await page.waitForSelector('#to-finish-1', {visible: true, timeout: 1500});
-        await buttonFinishOne.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('buttonf 1 not there');
-      }
-      try {
-        buttonFinishTwo = await page.waitForSelector('#to-finish-2', {visible: true, timeout: 1500});
-        await buttonFinishTwo.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('buttonf 2 not there');
-      }
-      try {
-        buttonFinishThree = await page.waitForSelector('#to-finish-3', {visible: true, timeout: 1500});
-        await buttonFinishThree.click();
-        await page.waitForTimeout(100);
-      } catch(error) {
-        // console.log('buttonf 3 not there');
-      }
-
-
-    }
+  setupAutodarts(points, false, pages[1]);
+  waitExternGame(pages[0]).then((val) => {
+    loopAutodarts(points);
+  });
 }
+async function abortAutodartsGame(){
+  const pages = (await _browser.pages());
+
+  const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
+  if (buttonAbort) {
+      console.log('Autodarts: close current game');
+      await buttonAbort.click();
+      await pages[1].waitForTimeout(2000);
+  }else{
+    console.log('Autodarts: Abort-button not found');
+  }
+  return pages;
+}
+
+
 
 
 
@@ -307,8 +531,12 @@ if (!args.extern_platform || supportedExternPlatforms.indexOf(args.extern_platfo
   console.log('"--extern_platform" is required. Supported values: ' + supportedExternPlatforms);
   process.exit(0);
 }
-if (args.extern_platform == 'lidarts' && (!args.lidarts_user || !args.lidarts_password)){
+if (args.extern_platform == lidarts && (!args.lidarts_user || !args.lidarts_password)){
   console.log('"--lidarts_user" and "--lidarts_password" is required');
+  process.exit(0);
+}
+if (args.extern_platform == dartboards && (!args.dartboards_user || !args.dartboards_password)){
+  console.log('"--dartboards_user" and "--dartboards_password" is required');
   process.exit(0);
 }
 
@@ -323,6 +551,10 @@ const lidartsPassword = args.lidarts_password;
 var lidartsSkipDartModals = args.lidarts_skip_dart_modals;
 var lidartsChatMessageStart = args.lidarts_chat_message_start;
 var lidartsChatMessageEnd = args.lidarts_chat_message_end;
+var nakkaSkipDartModals = args.nakka_skip_dart_modals;
+const dartboardsUser = args.dartboards_user;
+const dartboardsPassword = args.dartboards_password;
+var dartboardsSkipDartModals = args.dartboards_skip_dart_modals;
 
 // Check for optional arguments
 if(!hostPort){
@@ -340,6 +572,12 @@ if(!lidartsChatMessageStart){
 if(!lidartsChatMessageEnd){
   lidartsChatMessageEnd = "";
 }
+if(!nakkaSkipDartModals){
+  nakkaSkipDartModals = false;
+}
+if(!dartboardsSkipDartModals){
+  dartboardsSkipDartModals = false;
+}
 
 
 
@@ -351,7 +589,7 @@ app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', f
   var pointsLeft = req.params.pointsLeft;
   var busted = req.params.busted;
   var variant = req.params.variant;
-  var msg = 'Throw received - user:' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
+  var msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
   console.log(msg);
 
   _page
@@ -384,13 +622,13 @@ puppeteer
 .then((browser) => (_page = browser.newPage())
 .then((page) => {
 
-      setupLidarts(page).then((points) => {
-        waitLidartsMatch(page);
+      setupExtern(page).then((points) => {
+        waitExternMatch(page);
         setupAutodarts(points);
       });
 
-      waitLidartsGame(page).then((val) => {
-        loopAutodarts();
+      waitExternGame(page).then((val) => {
+       loopAutodarts();
       });
         
 }));
