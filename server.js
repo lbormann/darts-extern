@@ -213,6 +213,8 @@ async function inputThrow(page, throwPoints){
     await page.keyboard.type(throwPoints);
     await page.keyboard.press('Enter');
 
+    // TODO: correct AD-points when there is a difference to lidarts
+
     // TODO: best-practice..
     if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
       await page.waitForTimeout(250);

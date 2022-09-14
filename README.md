@@ -67,6 +67,7 @@ The app crashes when you enter wrong password or more generel when your login da
 
 
 ## TODOs
+- auto-correction of AD-game when there is difference to lidarts-game
 - improve logic for choosing correct lidarts missed/finish-darts
 - support other games modes (currently only X01 support)
 - support projection from lidarts to autodarts (multiple players)

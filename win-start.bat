@@ -8,7 +8,7 @@ node . --host_port="8080" ^
        --lidarts_user="TODO" ^
        --lidarts_password="TODO" ^
        --lidarts_skip_dart_modals="true" ^
-       --lidarts_chat_message_start="Hi, GD! This is an automated darts-match, powered by autodarts.io Enter the community: https://discord.gg/bY5JYKbmvM" ^
+       --lidarts_chat_message_start="Hi, GD! Automated darts-scoring - powered by autodarts.io - Enter the community: https://discord.gg/bY5JYKbmvM" ^
        --lidarts_chat_message_end="Thanks GG, WP!"
 
 pause
