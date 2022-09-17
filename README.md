@@ -5,10 +5,11 @@ Autodarts-extern automates multiple dart-platforms accordingly to the state of a
 Supported dart-platforms:
 - https://lidarts.org
 - https://nakka.com/n01/online
-- https://dartboards.online
+- https://dartboards.online (Bulling crashes the app)
 
 Supported game-modes:
 - X01 Single-In, Double-Out
+
 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from autodarts.io to this application.
 
@@ -43,9 +44,10 @@ Go to download-directory and type:
 
 ### General instruction to configure and run the application
 
-    node . --autodarts_user=<your-autodarts-email> -autodarts_password=<your-autodarts-password> --autodarts_board_id=<your-autodarts-board-id> --extern_platform=<lidarts | nakka | dartboards> --lidarts_user=<your-lidarts-email> --lidarts_password=<your-lidarts-password> ... see full list of arguments below
+    node . --browser_path=<path-to-your-browser-executable> --autodarts_user=<your-autodarts-email> -autodarts_password=<your-autodarts-password> --autodarts_board_id=<your-autodarts-board-id> --extern_platform=<lidarts | nakka | dartboards> --lidarts_user=<your-lidarts-email> --lidarts_password=<your-lidarts-password> ... see full list of arguments below
 
 Arguments:
+- --browser_path [Required]
 - --host_port [optional] [Default: 8080]
 - --autodarts_user [Required]
 - --autodarts_password [Required]
@@ -61,6 +63,7 @@ Arguments:
 - --dartboards_user [Required for extern_platform=dartboards]
 - --dartboards_password [Required for extern_platform=dartboards]
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
+
 
 ### Shortcut for Windows
 
@@ -83,8 +86,9 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - improve logic for choosing correct extern-missed/finish-darts
 - support other games modes (currently only X01 support)
 - support projection from extern-platforms to autodarts (multiple players)
-- support https://www.webcamdarts.com
 - improve main automation code-structure
+- loop throw-input while it was not successful
+- https://www.webcamdarts.com/
 
 
 ### Done

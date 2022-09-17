@@ -1,10 +1,21 @@
 const express = require('express');
 const app = express();
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer-extra');
 const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
 const { exit } = require('process');
+
+
+// Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
+
+// Add adblocker plugin to block all ads and trackers (saves bandwidth)
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker')
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 
 
 const supportedGameVariants = ['X01']
@@ -12,23 +23,28 @@ const supportedGameVariants = ['X01']
 const lidarts = 'lidarts'
 const nakka = 'nakka'
 const dartboards = 'dartboards'
+const webcamdarts = 'webcamdarts'
 const supportedExternPlatforms = [lidarts, nakka, dartboards]
 
 const autodartsUrl = "https://autodarts.io";
 const lidartsUrl = "https://lidarts.org/login";
 const nakkaUrl = "https://nakka.com/n01/online/n01_v2/setting.php"
 const dartboardsUrl = "https://dartboards.online"
+const webcamdartsUrl = "https://www.webcamdarts.com/GameOn"
+//const webcamdartsUrl = 'https://www.webcamdarts.com/GameOn/Lobby/ExternalLogin?ReturnUrl=%2FGameOn%2FLobby'
+//const webcamdartsUrl = "https://www.webcamdarts.com/GameOn/Lobby/Loginuser?ReturnUrl=%2fGameOn%2fLobby"
+
+
 
 
 DEBUG = false
-
 
 
 let _browser;
 let _page;
 
 
-async function setupExtern(page){
+async function setupExternPlatform(page){
 
   // kills initial browser-tab
   const pages = (await _browser.pages());
@@ -38,21 +54,17 @@ async function setupExtern(page){
 
   switch (externPlatform) {
     case lidarts:
-      console.log('Setup: lidarts');
       return await setupLidarts(page);
-      break;
     case nakka:
-      console.log('Setup: nakka');
       return await setupNakka(page);
-      break;
     case dartboards:
-      console.log('Setup: dartboards');
       return await setupDartboards(page);
-      break;
+    case webcamdarts:
+      return await setupWebcamdarts(page);
   }
 }
 async function setupLidarts(page){
-  
+  console.log('Lidarts: Setup');
   await page.goto(lidartsUrl, {waitUntil: 'networkidle0'});
   // await page.waitForTimeout(1000); 
 
@@ -92,7 +104,7 @@ async function setupLidarts(page){
   return initialPoints;
 }
 async function setupNakka(page){
-  
+  console.log('Nakka: Setup');
   await page.goto(nakkaUrl, {waitUntil: 'networkidle0'});
   // await page.waitForTimeout(1000); 
 
@@ -110,7 +122,7 @@ async function setupNakka(page){
   return initialPoints;
 }
 async function setupDartboards(page){
-  
+  console.log('Dartboards: Setup');
   await page.goto(dartboardsUrl, {waitUntil: 'networkidle0'});
   // await page.waitForTimeout(1000); 
 
@@ -150,6 +162,33 @@ async function setupDartboards(page){
   const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
   return initialPoints;
 }
+async function setupWebcamdarts(page){
+  console.log('Webcamdarts: Setup');
+  await page.goto(webcamdartsUrl, {waitUntil: 'networkidle0'});
+ 
+  // user login required?
+  // try {
+  //   await page.waitForSelector('#title_player_name', {visible: true, timeout: 2000});
+  // } catch(error) {
+  //   console.log("Webcamdarts: login user!");
+  // }
+
+  // await page.waitForTimeout(200);
+
+  
+  // wait for initial score to get x01-start points
+  // that is fucking ugly..
+  await page.waitForSelector('.text-scores', {visible: true, timeout: 0});
+  console.log('webcamdarts: das element ist da.')
+  await page.waitForFunction(
+    'parseInt(document.querySelector(".text-scores").innerText) > 100',
+    {visible: true, timeout: 0}
+  );
+  const pointsElement = await page.waitForSelector('.text-scores', {visible: true, timeout: 0});
+  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  console.log(initialPoints);
+  return initialPoints;
+}
 
 async function waitExternMatch(page){
   switch (externPlatform) {
@@ -162,12 +201,19 @@ async function waitExternMatch(page){
     case dartboards:
       await waitDartboardsMatch(page);
       break;
+    case webcamdarts:
+      await waitWebcamdartsMatch(page);
+      break;
+      
   }
 
   await abortAutodartsGame()
 
   // wait a bit, so the user can see the match result
   await page.waitForTimeout(timeBeforeExit);
+
+  // due to some technical things some portals create another AD-Game - we kill it just in case
+  await abortAutodartsGame()
 
   process.exit(0);
 }
@@ -189,7 +235,12 @@ async function waitLidartsMatch(page){
 }
 async function waitNakkaMatch(page){
   // wait for match-shot-modal
-  await page.waitForSelector('#todo', {visible: true, timeout: 0});
+  // <td id="msg_net_text" class="message_msg" style="padding: 5.51px 55.1px 110.2px;">Winner is wusAAAAAA</td>
+  //await page.waitForSelector('#msg_net_text', {visible: true, timeout: 0});
+  await page.waitForFunction(
+    'document.querySelector("#msg_net_text").innerText.includes("Winner is")',
+    {visible: true, timeout: 0}
+  );
   console.log('Nakka: gameshot & match');
 }
 async function waitDartboardsMatch(page){
@@ -197,18 +248,25 @@ async function waitDartboardsMatch(page){
   await page.waitForSelector('#modal-game-results___BV_modal_title_', {visible: true, timeout: 0});
   console.log('Dartboards: gameshot & match');
 }
+async function waitWebcamdartsMatch(page){
+  // wait for match-shot-modal
+  await page.waitForFunction(
+    'document.querySelector("h1").innerText.includes("Game is now finished.")',
+    {visible: true, timeout: 0}
+  );
+  console.log('Webcamdarts: gameshot & match');
+}
 
 async function waitExternGame(page){
   switch (externPlatform) {
     case lidarts:
       return await waitLidartsGame(page);
-      break;
     case nakka:
       return await waitNakkaGame(page);
-      break;
     case dartboards:
       return await waitDartboardsGame(page);
-      break;
+    case webcamdarts:
+      return await waitWebcamdartsGame(page);
   }
 }
 async function waitLidartsGame(page){
@@ -224,8 +282,9 @@ async function waitLidartsGame(page){
 async function waitNakkaGame(page){
   // wait for game-shot-modal
   // <div id="msg_ok" class="msg_button" style="padding: 11.565px 0px; margin: 0px 11.565px 11.565px 5.7825px;">OK</div>
-  buttonOk = await page.waitForSelector('#msg_ok', {visible: true, timeout: 0});
+  buttonOk = await page.waitForSelector('.message_btn_ok', {visible: true, timeout: 0});
   await buttonOk.click();
+
   //await page.waitForSelector('#msg_text', {visible: true, timeout: 0});
   console.log('Nakka: gameshot');
 
@@ -235,6 +294,9 @@ async function waitNakkaGame(page){
   return true;
 }
 async function waitDartboardsGame(page){
+
+  //await page.waitForTimeout(500);
+
   // wait for game-shot-modal
   await page.waitForSelector('#modal-leg-end___BV_modal_header_', {visible: true, timeout: 0});
   
@@ -243,6 +305,21 @@ async function waitDartboardsGame(page){
   nextLegButton.click();
 
   console.log('Dartboards: gameshot');
+
+  // wait for dialog to close, so its NOT triggered/ recognized on next run
+  await page.waitForTimeout(300);
+  
+  return true;
+}
+async function waitWebcamdartsGame(page){
+  // wait for game-shot-modal
+  await page.waitForSelector('.text-scores', {visible: true, timeout: 0});
+  await page.waitForFunction(
+    'parseInt(document.querySelector(".text-scores").innerText) > 100',
+    {visible: true, timeout: 0}
+  );
+  const pointsElement = await page.waitForSelector('.text-scores', {visible: true, timeout: 0});
+  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
 
   // wait for dialog to close, so its NOT triggered/ recognized on next run
   await page.waitForTimeout(300);
@@ -260,6 +337,9 @@ async function inputThrow(page, throwPoints){
       break;
     case dartboards:
       await inputThrowDartboards(page, throwPoints);
+      break;
+    case webcamdarts:
+      await inputThrowWebcamdarts(page, throwPoints);
       break;
   }
 }
@@ -400,6 +480,41 @@ async function inputThrowDartboards(page, throwPoints){
     // }
   }
 }
+async function inputThrowWebcamdarts(page, throwPoints){
+  await page.focus(".outline-white");
+  await page.keyboard.type(throwPoints);
+  await page.keyboard.press('Enter');
+
+  // TODO: correct AD-points when there is a difference to webcamdarts
+
+  // TODO: best-practice..
+  if(webcamdartsSkipDartModals == true || webcamdartsSkipDartModals == "true" || webcamdartsSkipDartModals == "True"){
+    await page.waitForTimeout(250);
+    console.log('Webcamdarts: skip dart modals');
+
+    // try {
+    //   buttonFinishOne = await page.waitForSelector('#finish_first', {visible: true, timeout: 1500});
+    //   await buttonFinishOne.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 1 not there');
+    // }
+    // try {
+    //   buttonFinishSecond = await page.waitForSelector('#finish_second', {visible: true, timeout: 1500});
+    //   await buttonFinishSecond.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 2 not there');
+    // }
+    // try {
+    //   buttonFinishThird = await page.waitForSelector('#finish_third', {visible: true, timeout: 1500});
+    //   await buttonFinishThird.click();
+    //   await page.waitForTimeout(100);
+    // } catch(error) {
+    //   // console.log('buttonf 3 not there');
+    // }
+  }
+}
 
 
 async function setupAutodarts(points, nav=true, pageExtern=false){
@@ -515,6 +630,10 @@ console.log('\r\n')
 
 
 // Check for required arguments
+if(!args.browser_path){
+  console.log('"--browser_path" is required');
+  process.exit(0);
+}
 if (!args.autodarts_user) {
   console.log('"--autodarts_user" is required');
   process.exit(0);
@@ -540,6 +659,7 @@ if (args.extern_platform == dartboards && (!args.dartboards_user || !args.dartbo
   process.exit(0);
 }
 
+const browserPath = args.browser_path;
 var hostPort = args.host_port;
 const autodartsUser = args.autodarts_user; 
 const autodartsPassword = args.autodarts_password;
@@ -555,6 +675,7 @@ var nakkaSkipDartModals = args.nakka_skip_dart_modals;
 const dartboardsUser = args.dartboards_user;
 const dartboardsPassword = args.dartboards_password;
 var dartboardsSkipDartModals = args.dartboards_skip_dart_modals;
+var webcamdartsSkipDartModals = args.webcamdarts_skip_dart_modals;
 
 // Check for optional arguments
 if(!hostPort){
@@ -578,6 +699,10 @@ if(!nakkaSkipDartModals){
 if(!dartboardsSkipDartModals){
   dartboardsSkipDartModals = false;
 }
+if(!webcamdartsSkipDartModals){
+  webcamdartsSkipDartModals = false;
+}
+
 
 
 
@@ -611,18 +736,32 @@ var server = app.listen(hostPort, function () {
 
 puppeteer
 .launch({
-  userDataDir: 'myChromeSession',
+  // NORMAL
+  // userDataDir: 'myChromeSession',
+  // headless: false, 
+  // defaultViewport: {width: 0, height: 0},
+  // devtools: DEBUG,
+  // args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
+  // // slowMo: 250, // slow down by 250ms
+
+  // WITH CORE
+  // headless: false, 
+  // defaultViewport: {width: 0, height: 0},
+  // args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
+  // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+
+  // WITH EXTRA
+  executablePath: browserPath,
   headless: false, 
   defaultViewport: {width: 0, height: 0},
   devtools: DEBUG,
   args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
-  // slowMo: 250, // slow down by 250ms
 })
 .then((browser) => (_browser = browser))
 .then((browser) => (_page = browser.newPage())
 .then((page) => {
 
-      setupExtern(page).then((points) => {
+      setupExternPlatform(page).then((points) => {
         waitExternMatch(page);
         setupAutodarts(points);
       });
