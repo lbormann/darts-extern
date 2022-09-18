@@ -3,7 +3,9 @@ myChromeSession
 package-lock.json
 test.js
 win-start-custom.bat
+test-exe.bat
 elements_*.txt
+*.exe
 
 # VSCode (Editor)
 /.elixir_ls

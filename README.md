@@ -1,8 +1,8 @@
 # AUTODARTS-EXTERN
 
-Autodarts-extern automates multiple dart-platforms accordingly to the state of an https://autodarts.io match. 
+Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
 
-Supported dart-platforms:
+Supported dart-web-platforms:
 - https://lidarts.org
 - https://nakka.com/n01/online
 - https://dartboards.online (Bulling crashes the app)
@@ -52,7 +52,7 @@ Arguments:
 - --autodarts_user [Required]
 - --autodarts_password [Required]
 - --autodarts_board_id [Required]
-- --extern_platform [Required] [Possible values: lidarts | nakka]
+- --extern_platform [Required] [Possible values: lidarts | nakka | dartboards]
 - --time_before_exit [Optional] [Default: 10000] [Possible values: 0..Inf]
 - --lidarts_user [Required for extern_platform=lidarts]
 - --lidarts_password [Required for extern_platform=lidarts]
