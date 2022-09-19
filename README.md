@@ -11,7 +11,7 @@ Supported game-modes:
 - X01 Single-In, Double-Out
 
 
-A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from autodarts.io to this application.
+A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
 
 
 Tested on Windows 11 Pro x64, Nodejs v16.13.1
@@ -19,13 +19,18 @@ Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
 ## INSTALL INSTRUCTION
 
+### Windows
 
-### Setup nodejs
+- Download the executable in the release section.
+
+### Linux / Others
+
+#### Setup nodejs
 
 - Download and install nodejs 16.x.x for your specific os.
 
 
-### Get the project
+#### Get the project
 
     git clone https://github.com/lbormann/autodarts-extern.git
 
@@ -33,20 +38,31 @@ Go to download-directory and type:
 
     npm install
 
-### Updates
-
-- Navigate to app-directory and type "git pull". After that you need install required packages "npm install". You are good to go.
-
 
 ## RUN IT
 
-- You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version) with configured 'WTT'-Argument (http://localhost:TODO/throw)
+### Prerequisite
 
-### General instruction to configure and run the application
+You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version) with configured 'WTT'-Argument (http://localhost:TODO/throw)
 
-    node . --browser_path=<path-to-your-browser-executable> --autodarts_user=<your-autodarts-email> -autodarts_password=<your-autodarts-password> --autodarts_board_id=<your-autodarts-board-id> --extern_platform=<lidarts | nakka | dartboards> --lidarts_user=<your-lidarts-email> --lidarts_password=<your-lidarts-password> ... see full list of arguments below
 
-Arguments:
+### Run by executable (Windows)
+
+Create a shortcut of the executable; right click on the shortcut -> select properties -> add arguments in the target input at the end of the text field.
+
+Example: C:\Downloads\autodarts-extern.exe --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password"
+
+Save changes.
+Click on the shortcut to start the program.
+
+
+### Run by source
+
+    node . --browser_path="path-to-your-browser-executable" --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts | nakka | dartboards" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password" ... see full list of arguments below
+
+
+### Arguments
+
 - --browser_path [Required]
 - --host_port [optional] [Default: 8080]
 - --autodarts_user [Required]
@@ -64,11 +80,6 @@ Arguments:
 - --dartboards_password [Required for extern_platform=dartboards]
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
-
-### Shortcut for Windows
-
-There is a file "win-start.bat". Copy this file and name it "win-start-custom.bat". Open it and configure the app with your custom requirements. Start it to run the app.
-For Linux-Desktop you could create a script similar to "win-start.bat".
 
 ### Test for working throw-receiver
 
@@ -88,7 +99,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - support projection from extern-platforms to autodarts (multiple players)
 - improve main automation code-structure
 - loop throw-input while it was not successful
-- https://www.webcamdarts.com/
+- support https://www.webcamdarts.com/
 
 
 ### Done
