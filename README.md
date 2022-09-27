@@ -100,6 +100,8 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - improve main automation code-structure
 - loop throw-input while it was not successful
 - support https://www.webcamdarts.com/
+- support automatic bulling
+
 
 
 ### Done
@@ -118,6 +120,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - chat-message start- and end
 - support https://nakka.com/n01/online/
 - support https://dartboards.online
+- add small delay when choosing board in AD
 
 
 ## LAST WORDS

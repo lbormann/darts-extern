@@ -327,10 +327,10 @@ async function waitWebcamdartsGame(page){
   return true;
 }
 
-async function inputThrow(page, throwPoints){
+async function inputThrow(page, throwPoints, pointsLeft){
   switch (externPlatform) {
     case lidarts:
-      await inputThrowLidarts(page, throwPoints);
+      await inputThrowLidarts(page, throwPoints, pointsLeft);
       break;
     case nakka:
       await inputThrowNakka(page, throwPoints);
@@ -343,12 +343,17 @@ async function inputThrow(page, throwPoints){
       break;
   }
 }
-async function inputThrowLidarts(page, throwPoints){
+async function inputThrowLidarts(page, throwPoints, pointsLeft){
   await page.focus("#score_value");
   await page.keyboard.type(throwPoints);
   await page.keyboard.press('Enter');
 
-  // TODO: correct AD-points when there is a difference to lidarts
+  // TODO: correct AD-points when there is a difference to lidarts (currently not possible)
+  // get points current from lidarts
+  //const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
+  //const currentPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  //console.log('Lidarts: current Points: ' + currentPoints);
+  //await correctAutodartsPoints(currentPoints, throwPoints, pointsLeft);
 
   // TODO: best-practice..
   if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
@@ -584,6 +589,7 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
     // there is only one select - we are lucky
     await page.select('select', autodartsBoardId);
+    await page.waitForTimeout(400); 
   }
   
   // start the game
@@ -612,6 +618,29 @@ async function abortAutodartsGame(){
     console.log('Autodarts: Abort-button not found');
   }
   return pages;
+}
+async function correctAutodartsPoints(externCurrentPoints, autodartsThrowPoints, autodartsPointsLeft){
+  // is there if difference?
+  const externPointsFuture = externCurrentPoints - autodartsThrowPoints;
+  if(externPointsFuture == autodartsPointsLeft){
+    console.log('Autodarts: no point difference');
+  // yes difference
+  }else{
+    console.log('Autodarts: point difference');
+
+    //do i need step backward?
+    if(externPointsFuture > pointsLeft){
+      const pages = (await _browser.pages());
+      const [buttonUndo] = await pages[1].$x("//button[contains(.,'Undo')]");
+      if (buttonUndo) {
+          console.log('Autodarts: do undo');
+          await buttonUndo.click();
+          await pages[1].waitForTimeout(75);
+      }else{
+        console.log('Autodarts: Undo-button not found');
+      }
+    }
+  }
 }
 
 
@@ -719,7 +748,7 @@ app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', f
 
   _page
   .then((page) => {
-    inputThrow(page, throwPoints);
+    inputThrow(page, throwPoints, pointsLeft);
   });
 
   res.end(msg)
