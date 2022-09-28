@@ -589,7 +589,7 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
     // there is only one select - we are lucky
     await page.select('select', autodartsBoardId);
-    await page.waitForTimeout(400); 
+    await page.waitForTimeout(550); 
   }
   
   // start the game
