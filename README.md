@@ -1,15 +1,7 @@
 # AUTODARTS-EXTERN
 
 Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
-
-Supported dart-web-platforms:
-- https://lidarts.org
-- https://nakka.com/n01/online
-- https://dartboards.online
-
-
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
-
 
 Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
