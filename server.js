@@ -18,7 +18,8 @@ puppeteer.use(StealthPlugin())
 // puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 
 
-const supportedGameVariants = ['X01']
+const supportedGameVariants = ['X01','Cricket']
+const supportedCricketFields = ['15','16','17','18','19','20','25']
 
 const lidarts = 'lidarts'
 const nakka = 'nakka'
@@ -81,8 +82,23 @@ async function setupLidarts(page){
   }
   await page.waitForTimeout(200);
 
+
+  await page.waitForFunction(
+      'document.querySelector("#cricket_scoreboard") != null || document.querySelector("#change-keypad") != null',
+      {visible: true, timeout: 0}
+    );
+
+  variant = 'X01';
+  try{
+    await page.waitForSelector('#cricket_scoreboard', {visible: true, timeout: 1000});
+    variant = 'Cricket';
+    console.log("Lidarts: Cricket");
+  }catch(error){
+    console.log("Lidarts: X01");
+  }
+
   // Send start-message
-  if(lidartsChatMessageStart != ""){
+  if(variant == 'X01' && lidartsChatMessageStart != ""){
     await page.waitForTimeout(2500);
     const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
     await chatButton.click();
@@ -92,15 +108,18 @@ async function setupLidarts(page){
     await page.keyboard.press('Enter');
   }
 
-  // wait for initial score to get x01-start points
-  // that is fucking ugly..
   await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
-  await page.waitForFunction(
-    'parseInt(document.querySelector("#p1_score").innerText) > 100',
-    {visible: true, timeout: 0}
-  );
-  const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
-  const initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  initialPoints = 'Cricket'
+  if(variant == 'X01'){
+    // wait for initial score to get x01-start points
+    // that is fucking ugly..
+    await page.waitForFunction(
+      'parseInt(document.querySelector("#p1_score").innerText) > 100',
+      {visible: true, timeout: 0}
+    );
+    const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
+    initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  }
   return initialPoints;
 }
 async function setupNakka(page){
@@ -327,10 +346,10 @@ async function waitWebcamdartsGame(page){
   return true;
 }
 
-async function inputThrow(page, throwPoints, pointsLeft){
+async function inputThrow(page, throwPoints, pointsLeft, variant){
   switch (externPlatform) {
     case lidarts:
-      await inputThrowLidarts(page, throwPoints, pointsLeft);
+      await inputThrowLidarts(page, throwPoints, variant);
       break;
     case nakka:
       await inputThrowNakka(page, throwPoints);
@@ -343,10 +362,47 @@ async function inputThrow(page, throwPoints, pointsLeft){
       break;
   }
 }
-async function inputThrowLidarts(page, throwPoints, pointsLeft){
-  await page.focus("#score_value");
-  await page.keyboard.type(throwPoints);
-  await page.keyboard.press('Enter');
+async function inputThrowLidarts(page, throwPoints, variant){
+
+  if(variant == 'X01'){
+    await page.focus("#score_value");
+    await page.keyboard.type(throwPoints);
+    await page.keyboard.press('Enter');
+
+  }else if(variant == 'Cricket'){
+    points = throwPoints.split('x');
+
+    if(points.length >= 1){
+      var t1 = points[0].substring(1);
+      if(supportedCricketFields.indexOf(t1) >= 0){
+        buttonValue = await page.waitForSelector('#score-button-' + points[0], {visible: true, timeout: 0});
+        await buttonValue.click();
+        await page.waitForTimeout(130);
+      }
+    }
+    if(points.length >= 2){
+      var t2 = points[1].substring(1);
+      if(supportedCricketFields.indexOf(t2) >= 0){
+        buttonValue = await page.waitForSelector('#score-button-' + points[1], {visible: true, timeout: 0});
+        await buttonValue.click();
+        await page.waitForTimeout(130);
+      }
+    }
+    if(points.length == 3){
+      var t3 = points[2].substring(1);
+        if(supportedCricketFields.indexOf(t3) >= 0){
+        buttonValue = await page.waitForSelector('#score-button-' + points[2], {visible: true, timeout: 0});
+        await buttonValue.click();
+        await page.waitForTimeout(130);
+      }
+    }
+    await page.waitForTimeout(150);
+    const buttonConfirm = await page.waitForSelector('#score-confirm', {visible: true, timeout: 0});
+    await buttonConfirm.click();
+  }else{
+    console.log('Variant: ' + variant + ' not supported');
+  }
+
 
   // TODO: correct AD-points when there is a difference to lidarts (currently not possible)
   // get points current from lidarts
@@ -557,19 +613,25 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
     var page = pageExtern;
   }
 
-
-  await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle0'});
+  if(points != 'Cricket'){
+    await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle0'});
+  }else{
+    await page.goto("https://autodarts.io/lobbies/new/cricket", {waitUntil: 'networkidle0'});
+  }
   // await page.waitForTimeout(2000); 
 
   // only when we are visiting first time we need to configure the game
   if(nav == true){
-    const [buttonPoints] = await page.$x("//button[contains(., " + points + ")]");
-    if (buttonPoints) {
-        await buttonPoints.click();
-    }else{
-      console.log('Autodarts does not support X01 with ' + points);
+
+    if(points != 'Cricket'){
+      const [buttonPoints] = await page.$x("//button[contains(., " + points + ")]");
+      if (buttonPoints) {
+          await buttonPoints.click();
+      }else{
+        console.log('Autodarts does not support X01 with ' + points);
+      }
+      await page.waitForTimeout(150);
     }
-    await page.waitForTimeout(150);
   
     const [buttonVisibility] = await page.$x("//button[contains(.,'Private')]");
     if (buttonVisibility) {
@@ -748,7 +810,7 @@ app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', f
 
   _page
   .then((page) => {
-    inputThrow(page, throwPoints, pointsLeft);
+    inputThrow(page, throwPoints, pointsLeft, variant);
   });
 
   res.end(msg)

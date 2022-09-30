@@ -7,14 +7,23 @@ Supported dart-web-platforms:
 - https://nakka.com/n01/online
 - https://dartboards.online (Bulling crashes the app)
 
-Supported game-modes:
-- X01 Single-In, Double-Out
-
 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
 
 
 Tested on Windows 11 Pro x64, Nodejs v16.13.1
+
+
+## COMPATIBILITY
+
+x = supported
+o = not (yet) supported
+
+| Platform | X01 Single-In, Double-Out | Cricket Standard |
+| ------------- | ------------- | ------------- |
+| Lidarts | x | x |
+| Nakka01-Online | x | o |
+| Dartboards | x | o |
 
 
 ## INSTALL INSTRUCTION
