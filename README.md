@@ -5,7 +5,7 @@ Autodarts-extern automates multiple dart-web-platforms accordingly to the state 
 Supported dart-web-platforms:
 - https://lidarts.org
 - https://nakka.com/n01/online
-- https://dartboards.online (Bulling crashes the app)
+- https://dartboards.online
 
 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
@@ -19,11 +19,13 @@ Tested on Windows 11 Pro x64, Nodejs v16.13.1
 x = supported
 o = not (yet) supported
 
-| Platform | X01 Single-In, Double-Out | Cricket Standard |
-| ------------- | ------------- | ------------- |
-| Lidarts | x | x |
-| Nakka01-Online | x | o |
-| Dartboards | x | o |
+| Platform | Bulling | X01 Single-In, Double-Out | Cricket Standard |
+| ------------- | ------------- | ------------- | ------------- |
+| [Lidarts](https://lidarts.org) | x | x | x |
+| [Nakka01-Online](https://nakka.com/n01/online) | x | x | o |
+| [Dartboards](https://dartboards.online) | o | x | o |
+| [webcamdarts](webcamdarts.com) | o | o | o |
+| [Pro-Darter](http://www.pro-darter.com/) | o | o | o |
 
 
 ## INSTALL INSTRUCTION
@@ -130,6 +132,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - support https://nakka.com/n01/online/
 - support https://dartboards.online
 - add small delay when choosing board in AD
+- add cricket-support lidarts
 
 
 ## LAST WORDS
