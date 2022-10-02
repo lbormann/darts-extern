@@ -67,7 +67,6 @@ async function setupExternPlatform(page){
 async function setupLidarts(page){
   console.log('Lidarts: Setup');
   await page.goto(lidartsUrl, {waitUntil: 'networkidle0'});
-  // await page.waitForTimeout(1000); 
 
   // user login required?
   const [buttonLogout] = await page.$x("//a[contains(@href,'/logout')]/@href");
@@ -82,12 +81,11 @@ async function setupLidarts(page){
   }
   await page.waitForTimeout(200);
 
-
+  // decide game-variant
   await page.waitForFunction(
       'document.querySelector("#cricket_scoreboard") != null || document.querySelector("#change-keypad") != null',
       {visible: true, timeout: 0}
     );
-
   variant = 'X01';
   try{
     await page.waitForSelector('#cricket_scoreboard', {visible: true, timeout: 1000});
@@ -98,19 +96,30 @@ async function setupLidarts(page){
   }
 
   // Send start-message
-  if(variant == 'X01' && lidartsChatMessageStart != ""){
+  if(lidartsChatMessageStart != ""){
     await page.waitForTimeout(2500);
-    const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
-    await chatButton.click();
-    await page.waitForSelector('#message', {visible: true, timeout: 0});
-    await page.focus("#message");
-    await page.keyboard.type(lidartsChatMessageStart);
-    await page.keyboard.press('Enter');
+    if(variant == 'X01'){
+      const chatButton = await page.waitForSelector('#chat-tab', {visible: true, timeout: 0});
+      await chatButton.click();
+      await page.waitForSelector('#message', {visible: true, timeout: 0});
+      await page.focus("#message");
+      await page.keyboard.type(lidartsChatMessageStart);
+      await page.keyboard.press('Enter');
+    }else{
+      const openChatButton = await page.waitForSelector('#toggle-chat', {visible: true, timeout: 0});
+      await openChatButton.click();    
+      await page.waitForSelector('#message', {visible: true, timeout: 0});
+      await page.focus("#message");
+      await page.keyboard.type(lidartsChatMessageStart);
+      await page.keyboard.press('Enter');
+      await openChatButton.click(); 
+    }
   }
 
-  await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
+  // Return game-configuration
   initialPoints = 'Cricket'
   if(variant == 'X01'){
+    await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
     // wait for initial score to get x01-start points
     // that is fucking ugly..
     await page.waitForFunction(
@@ -119,13 +128,21 @@ async function setupLidarts(page){
     );
     const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
     initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
+  }else{
+    // Wait for possible bulling-action
+    try{
+      // closest_to_bull_notification_div
+      await page.waitForSelector('#closest_to_bull_notification', {visible: true, timeout: 2000});
+      await page.waitForSelector('#closest_to_bull_notification', { hidden: true, timeout: 0 });
+    }catch(error){
+      // no bulling
+    }
   }
   return initialPoints;
 }
 async function setupNakka(page){
   console.log('Nakka: Setup');
   await page.goto(nakkaUrl, {waitUntil: 'networkidle0'});
-  // await page.waitForTimeout(1000); 
 
   // user login required?
   try {
@@ -143,7 +160,6 @@ async function setupNakka(page){
 async function setupDartboards(page){
   console.log('Dartboards: Setup');
   await page.goto(dartboardsUrl, {waitUntil: 'networkidle0'});
-  // await page.waitForTimeout(1000); 
 
   // user login required?
   const [buttonLogin] = await page.$x("//a[contains(@href,'https://dartboards.online/login')]/@href");

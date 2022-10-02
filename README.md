@@ -16,9 +16,9 @@ o = not (yet) supported
 | [Lidarts](https://lidarts.org) | x | x | x |
 | [Nakka01-Online](https://nakka.com/n01/online) | x | x | o |
 | [Dartboards](https://dartboards.online) | o | x | o |
-| [webcamdarts](webcamdarts.com) | o | o | o |
-| [Pro-Darter](http://www.pro-darter.com/) | o | o | o |
+| [Webcamdarts](https://www.webcamdarts.com/) | o | o | o |
 
+Bulling supported does NOT mean it is automated; it only means that it is working properly without crashing the app.
 
 ## INSTALL INSTRUCTION
 
@@ -98,12 +98,12 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 ## TODOs
 - auto-correction of AD-game when there is difference to extern-game
 - improve logic for choosing correct extern-missed/finish-darts
-- support other games modes (currently only X01 support)
 - support projection from extern-platforms to autodarts (multiple players)
 - improve main automation code-structure
 - loop throw-input while it was not successful
 - support https://www.webcamdarts.com/
 - support automatic bulling
+- Save user-settings in browser
 
 
 
@@ -125,6 +125,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - support https://dartboards.online
 - add small delay when choosing board in AD
 - add cricket-support lidarts
+- support other games modes (currently only X01 support)
 
 
 ## LAST WORDS
