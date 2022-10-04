@@ -1,14 +1,11 @@
 {
   "name": "autodarts-extern",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Synchronizes an autodarts.io match with extern dart-web-platforms",
   "author": "wusaaa",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
-  },
-  "pkg": {
-    "assets": "node_modules/puppeteer-extra-plugin-stealth/**/*.*"
   },
   "dependencies": {
     "config": "^3.3.7",
@@ -19,3 +16,4 @@
     "minimist": "^1.2.6"
   }
 }
+

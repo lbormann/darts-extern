@@ -89,6 +89,10 @@ Click on the shortcut to start the program.
 To test if the app can receive throw-information, start the app, open a new browser tab and type "http://localhost:TODO/throw/mustermann/1/50/400/false/x01". Replace "TODO" with your configured Port.
 if everything works properly you should see a message 'Throw received - ...'
 
+## EXTENSIONS
+
+If you think it is terrible to configure/start/handling this application then go for autodarts-desktop https://github.com/Semtexmagix/autodarts-desktop
+
 
 ## BUGS
 
@@ -104,6 +108,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - support https://www.webcamdarts.com/
 - support automatic bulling
 - Save user-settings in browser
+- Fix autodarts-stop
 
 
 

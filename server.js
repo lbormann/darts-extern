@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
-// const puppeteer = require('puppeteer');
-// const puppeteer = require('puppeteer-core');
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer');
+//const puppeteer = require('puppeteer-core');
+//const puppeteer = require('puppeteer-extra');
 const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
@@ -10,12 +10,14 @@ const { exit } = require('process');
 
 
 // Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-puppeteer.use(StealthPlugin())
+// STORAGE DOES NOT WORK WITH STEALTH
+//const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+//puppeteer.use(StealthPlugin())
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 // const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker')
 // puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+
 
 
 const supportedGameVariants = ['X01','Cricket']
@@ -226,6 +228,7 @@ async function setupWebcamdarts(page){
 }
 
 async function waitExternMatch(page){
+  
   switch (externPlatform) {
     case lidarts:
       await waitLidartsMatch(page);
@@ -363,6 +366,20 @@ async function waitWebcamdartsGame(page){
 }
 
 async function inputThrow(page, throwPoints, pointsLeft, variant){
+
+  // fix autodarts stop
+  // ✊
+  // const pages = (await _browser.pages());
+
+  // const [buttonAbort] = await pages[1].$x("//button[contains(.,'Abort')]");
+  // if (buttonAbort) {
+  //     console.log('Autodarts: close current game');
+  //     await buttonAbort.click();
+  //     await pages[1].waitForTimeout(2000);
+  // }else{
+  //   console.log('Autodarts: Abort-button not found');
+  // }
+
   switch (externPlatform) {
     case lidarts:
       await inputThrowLidarts(page, throwPoints, variant);
@@ -843,26 +860,12 @@ var server = app.listen(hostPort, function () {
 
 puppeteer
 .launch({
-  // NORMAL
-  // userDataDir: 'myChromeSession',
-  // headless: false, 
-  // defaultViewport: {width: 0, height: 0},
-  // devtools: DEBUG,
-  // args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
-  // // slowMo: 250, // slow down by 250ms
-
-  // WITH CORE
-  // headless: false, 
-  // defaultViewport: {width: 0, height: 0},
-  // args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
-  // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-
-  // WITH EXTRA
+  userDataDir: 'sessionData',
   executablePath: browserPath,
   headless: false, 
   defaultViewport: {width: 0, height: 0},
   devtools: DEBUG,
-  args: [ '--start-maximized', '--hide-crash-restore-bubble'], // '--start-maximized', '--window-size=540,960'
+  args: [ '--start-maximized', '--hide-crash-restore-bubble'],
 })
 .then((browser) => (_browser = browser))
 .then((browser) => (_page = browser.newPage())
