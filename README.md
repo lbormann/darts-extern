@@ -107,10 +107,10 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - loop throw-input while it was not successful
 - support https://www.webcamdarts.com/
 - support automatic bulling
-- Save user-settings in browser
 - Fix autodarts-stop
-
-
+- cricket does work after variant-recognition
+- fix Cricket: if autodarts gameshot - no point transfer
+- fix: Cricket stuck, when start-message is set
 
 ### Done
 - maximize windows
@@ -131,6 +131,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - add small delay when choosing board in AD
 - add cricket-support lidarts
 - support other games modes (currently only X01 support)
+- Save user-settings in browser
 
 
 ## LAST WORDS

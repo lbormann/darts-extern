@@ -108,13 +108,14 @@ async function setupLidarts(page){
       await page.keyboard.type(lidartsChatMessageStart);
       await page.keyboard.press('Enter');
     }else{
-      const openChatButton = await page.waitForSelector('#toggle-chat', {visible: true, timeout: 0});
-      await openChatButton.click();    
-      await page.waitForSelector('#message', {visible: true, timeout: 0});
-      await page.focus("#message");
-      await page.keyboard.type(lidartsChatMessageStart);
-      await page.keyboard.press('Enter');
-      await openChatButton.click(); 
+      // TODO: maybe fix
+      // const openChatButton = await page.waitForSelector('#toggle-chat', {visible: true, timeout: 0});
+      // await openChatButton.click();    
+      // await page.waitForSelector('#message', {visible: true, timeout: 0});
+      // await page.focus("#message");
+      // await page.keyboard.type(lidartsChatMessageStart);
+      // await page.keyboard.press('Enter');
+      // await openChatButton.click(); 
     }
   }
 
