@@ -111,6 +111,8 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - cricket does work after variant-recognition
 - fix Cricket: if autodarts gameshot - no point transfer
 - fix: Cricket stuck, when start-message is set
+- start browser with arguments e.g.: --kiosk
+
 
 ### Done
 - maximize windows

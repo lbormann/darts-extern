@@ -164,6 +164,19 @@ async function setupDartboards(page){
   console.log('Dartboards: Setup');
   await page.goto(dartboardsUrl, {waitUntil: 'networkidle0'});
 
+  await page.waitForTimeout(1500);
+
+  // cookies acceptance required?
+  const [buttonCookiesAcceptance] = await page.$x("//a[contains(@href,'/acceptcookies')]/@href");
+  try {
+    if (buttonCookiesAcceptance) {
+      console.log("Dartboards: accepting cookies!");
+      await page.goto("https://dartboards.online/acceptcookies", {waitUntil: 'networkidle0'});
+    }
+  } catch(error) {
+    //console.log('dartboards: error accepting cookies');
+  }
+
   // user login required?
   const [buttonLogin] = await page.$x("//a[contains(@href,'https://dartboards.online/login')]/@href");
 
@@ -178,6 +191,7 @@ async function setupDartboards(page){
     await page.$eval('button[type=submit]', el => el.click());
   }
   await page.waitForTimeout(600);
+
 
   // cookies acceptance required?
   const [buttonCookieAccept] = await page.$x("//a[@aria-label='allow cookies']");
