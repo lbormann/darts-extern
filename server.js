@@ -1,5 +1,9 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
+app.use(express.json())
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
 const puppeteer = require('puppeteer');
 //const puppeteer = require('puppeteer-core');
 //const puppeteer = require('puppeteer-extra');
@@ -844,29 +848,47 @@ if(!webcamdartsSkipDartModals){
 
 
 
+app.post('/', function(req, res) {
+  // EXAMPLE-REQUEST
+  //   {
+  //     "event": "darts-thrown",
+  //     "player": currentPlayerName,
+  //     "game": {
+  //         "mode": "X01",
+  //         "points-left": str(remainingPlayerScore),
+  //         "dart-number": "3",
+  //         "dart-value": points,        
+  //     }
+  //    }
 
-app.get('/throw/:user/:throwNumber/:throwPoints/:pointsLeft/:busted/:variant', function (req, res) {
-  // console.log(req);
-  var user = req.params.user;
-  var throwNumber = req.params.throwNumber;
-  var throwPoints = req.params.throwPoints;
-  var pointsLeft = req.params.pointsLeft;
-  var busted = req.params.busted;
-  var variant = req.params.variant;
-  var msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
-  console.log(msg);
-
-  _page
-  .then((page) => {
-    inputThrow(page, throwPoints, pointsLeft, variant);
-  });
-
-  res.end(msg)
+  try{
+    var msg = 'Thank You, but that is not my thing.';
+    var body = req.body;
+    if(body.event == "darts-pulled"){
+      var user = body.player;
+      var throwNumber = "1";
+      var throwPoints = body.game.dartsThrownValue;
+      var pointsLeft = body.game.pointsLeft;
+      var busted = body.game.busted;
+      var variant = body.game.mode;
+      msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
+      console.log(msg);
+    
+      _page
+      .then((page) => {
+        inputThrow(page, throwPoints, pointsLeft, variant);
+      });
+    }
+  }catch(error){
+    console.log("Parsing request failed.");
+  }finally{
+    res.end(msg);
+  } 
 });
 
 
 // Start a http listener as receiver for throws
-var server = app.listen(hostPort, function () {
+var server = app.listen(hostPort, function() {
     var host = server.address().address
     var port = server.address().port
     console.log("Taking throws at http://%s:%s", host, port)
