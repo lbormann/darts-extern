@@ -418,6 +418,10 @@ async function inputThrowLidarts(page, throwPoints, variant){
 
   if(variant == 'X01'){
     await page.focus("#score_value");
+    await page.keyboard.down('Control');
+    await page.keyboard.press('A');
+    await page.keyboard.up('Control');
+    await page.keyboard.press('Backspace');
     await page.keyboard.type(throwPoints);
     await page.keyboard.press('Enter');
 
