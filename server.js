@@ -384,7 +384,7 @@ async function waitWebcamdartsGame(page){
   return true;
 }
 
-async function inputThrow(page, throwPoints, pointsLeft, variant){
+async function inputThrow(page, throwPoints, pointsLeft, variant, autoEnter){
 
   // fix autodarts stop
   // ✊
@@ -401,7 +401,7 @@ async function inputThrow(page, throwPoints, pointsLeft, variant){
 
   switch (externPlatform) {
     case lidarts:
-      await inputThrowLidarts(page, throwPoints, variant);
+      await inputThrowLidarts(page, throwPoints, variant, autoEnter);
       break;
     case nakka:
       await inputThrowNakka(page, throwPoints);
@@ -414,7 +414,7 @@ async function inputThrow(page, throwPoints, pointsLeft, variant){
       break;
   }
 }
-async function inputThrowLidarts(page, throwPoints, variant){
+async function inputThrowLidarts(page, throwPoints, variant, autoEnter){
 
   if(variant == 'X01'){
     await page.focus("#score_value");
@@ -423,7 +423,11 @@ async function inputThrowLidarts(page, throwPoints, variant){
     await page.keyboard.up('Control');
     await page.keyboard.press('Backspace');
     await page.keyboard.type(throwPoints);
-    await page.keyboard.press('Enter');
+
+    if(autoEnter == true){
+      await page.keyboard.press('Enter');
+    }
+    
 
   }else if(variant == 'Cricket'){
     points = throwPoints.split('x');
@@ -853,34 +857,27 @@ if(!webcamdartsSkipDartModals){
 
 
 app.post('/', function(req, res) {
-  // EXAMPLE-REQUEST
-  //   {
-  //     "event": "darts-thrown",
-  //     "player": currentPlayerName,
-  //     "game": {
-  //         "mode": "X01",
-  //         "points-left": str(remainingPlayerScore),
-  //         "dart-number": "3",
-  //         "dart-value": points,        
-  //     }
-  //    }
-
+  var msg = 'Thank You, but I dont care about your content.';
   try{
-    var msg = 'Thank You, but that is not my thing.';
     var body = req.body;
-    if(body.event == "darts-pulled"){
-      var user = body.player;
-      var throwNumber = "1";
+    if(body.event == "darts-pulled" || body.event == "game-won" || body.event == "match-won"){
       var throwPoints = body.game.dartsThrownValue;
-      var pointsLeft = body.game.pointsLeft;
-      var busted = body.game.busted;
       var variant = body.game.mode;
-      msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
+      var autoEnter = !(body.event == "game-won" || body.event == "match-won");
+
+      // var user = body.player;
+      // var throwNumber = "1";
+      // var busted = body.game.busted;
+      // // body.game.pointsLeft; 
+      // var pointsLeft = -1
+      // msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
+      // console.log(msg);
+      msg = 'Received event: ' + body.event;
       console.log(msg);
-    
+
       _page
       .then((page) => {
-        inputThrow(page, throwPoints, pointsLeft, variant);
+        inputThrow(page, throwPoints, -1, variant, autoEnter);
       });
     }
   }catch(error){
@@ -888,6 +885,7 @@ app.post('/', function(req, res) {
   }finally{
     res.end(msg);
   } 
+
 });
 
 

@@ -100,6 +100,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 
 
 ## TODOs
+
 - auto-correction of AD-game when there is difference to extern-game
 - improve logic for choosing correct extern-missed/finish-darts
 - support projection from extern-platforms to autodarts (multiple players)
@@ -112,9 +113,11 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - fix Cricket: if autodarts gameshot - no point transfer
 - fix: Cricket stuck, when start-message is set
 - start browser with arguments e.g.: --kiosk
+- improve Readme: explain arguments, add example for starting app
 
 
 ### Done
+
 - maximize windows
 - disable chromium restore pages function
 - handle throws after busted
@@ -138,6 +141,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 
 
 ## LAST WORDS
+
 Thanks to Timo for awesome https://autodarts.io. It will be huge!
 Thanks to Reepa86 for the idea!
 
