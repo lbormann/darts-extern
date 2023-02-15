@@ -84,6 +84,12 @@ Click on the shortcut to start the program.
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
 
+## !!! IMPORTANT !!!
+
+This application requires a running instance of autodarts-caller https://github.com/lbormann/autodarts-caller
+Moreover you need to configure the WTT-argument in autodarts-caller to delegate incoming game-events to this application.
+Let`s say you drive both - the caller and extern on the same machine, then you fill WTT with 'http://127.0.0.1:8080' Do not use 'localhost' as the name needs to be resolved by os that can cost addional time until the game-event reaches wled.
+
 ## HELPERS
 
 If you think it is terrible to configure/start/handling this application then go for autodarts-desktop https://github.com/Semtexmagix/autodarts-desktop
