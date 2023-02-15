@@ -46,7 +46,7 @@ Go to download-directory and type:
 
 ### Prerequisite
 
-You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version) with configured 'WTT'-Argument (http://localhost:TODO/throw)
+You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version) with configured 'WTT'-Argument (http://127.0.0.1:8080)
 
 
 ### Run by executable (Windows)
@@ -83,11 +83,6 @@ Click on the shortcut to start the program.
 - --dartboards_password [Required for extern_platform=dartboards]
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
-
-### Test for working throw-receiver
-
-To test if the app can receive throw-information, start the app, open a new browser tab and type "http://localhost:TODO/throw/mustermann/1/50/400/false/x01". Replace "TODO" with your configured Port.
-if everything works properly you should see a message 'Throw received - ...'
 
 ## HELPERS
 
