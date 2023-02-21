@@ -1,7 +1,7 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-app.use(express.json())
+// const express = require('express');
+// const bodyParser = require('body-parser');
+// const app = express();
+// app.use(express.json())
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 const puppeteer = require('puppeteer');
@@ -11,7 +11,8 @@ const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
 const { exit } = require('process');
-
+global.WebSocket = require('ws');
+const Sockette = require('sockette');
 
 // Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
 // STORAGE DOES NOT WORK WITH STEALTH
@@ -810,8 +811,9 @@ if (args.extern_platform == dartboards && (!args.dartboards_user || !args.dartbo
   process.exit(0);
 }
 
+
+var connection = args.connection;
 const browserPath = args.browser_path;
-var hostPort = args.host_port;
 const autodartsUser = args.autodarts_user; 
 const autodartsPassword = args.autodarts_password;
 const autodartsBoardId = args.autodarts_board_id
@@ -829,8 +831,8 @@ var dartboardsSkipDartModals = args.dartboards_skip_dart_modals;
 var webcamdartsSkipDartModals = args.webcamdarts_skip_dart_modals;
 
 // Check for optional arguments
-if(!hostPort){
-  hostPort = 8080;
+if(!connection){
+  connection = '127.0.0.1:8079';
 }
 if(!timeBeforeExit){
   timeBeforeExit = 10000;
@@ -856,45 +858,36 @@ if(!webcamdartsSkipDartModals){
 
 
 
-app.post('/', function(req, res) {
-  var msg = 'Thank You, but I dont care about your content.';
-  try{
-    var body = req.body;
-    if(body.event == "darts-pulled" || body.event == "game-won" || body.event == "match-won"){
-      var throwPoints = body.game.dartsThrownValue;
-      var variant = body.game.mode;
-      var autoEnter = !(body.event == "game-won" || body.event == "match-won");
+const ws = new Sockette('ws://' + connection, {
+  onopen: e => console.log('Connected to ', connection),
+  onmessage: function(event) {
+        try{
+          var body = JSON.parse(event.data);
+          // console.log(typeof body);
+          // console.log(body);
 
-      // var user = body.player;
-      // var throwNumber = "1";
-      // var busted = body.game.busted;
-      // // body.game.pointsLeft; 
-      // var pointsLeft = -1
-      // msg = 'Throw received - User: ' + user + ' Throw-Number: ' + throwNumber + ' Throw-Points: ' + throwPoints + ' Points-Left: ' + pointsLeft + ' Busted: ' + busted + ' Variant: ' + variant;
-      // console.log(msg);
-      msg = 'Received event: ' + body.event;
-      console.log(msg);
+          if(body.event == 'darts-pulled' || body.event == 'game-won' || body.event == 'match-won'){
+            var throwPoints = body.game.dartsThrownValue;
+            var variant = body.game.mode;
+            var autoEnter = !(body.event == 'game-won' || body.event == 'match-won');
 
-      _page
-      .then((page) => {
-        inputThrow(page, throwPoints, -1, variant, autoEnter);
-      });
-    }
-  }catch(error){
-    console.log("Parsing request failed.");
-  }finally{
-    res.end(msg);
-  } 
-
+            console.log('Received event: ' + body.event);
+            
+            _page
+            .then((page) => {
+              inputThrow(page, throwPoints, -1, variant, autoEnter);
+            });
+          }
+        }catch(error){
+          console.log("Parsing request failed.");
+        }
+  },
+  // onreconnect: e => console.log('Reconnecting...', e),
+  // onmaximum: e => console.log('Stop Attempting!', e),
+  // onclose: e => console.log('Closed!', e),
+  onerror: e => console.log('Error:', e)
 });
 
-
-// Start a http listener as receiver for throws
-var server = app.listen(hostPort, function() {
-    var host = server.address().address
-    var port = server.address().port
-    console.log("Taking throws at http://%s:%s", host, port)
-});
 
 
 puppeteer

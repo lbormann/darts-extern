@@ -46,7 +46,7 @@ Go to download-directory and type:
 
 ### Prerequisite
 
-You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version) with configured 'WTT'-Argument (http://127.0.0.1:8080)
+You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version)
 
 
 ### Run by executable (Windows)
@@ -66,8 +66,8 @@ Click on the shortcut to start the program.
 
 ### Arguments
 
+- --connection [Optional] [Default: 127.0.0.1:8079]
 - --browser_path [Required]
-- --host_port [optional] [Default: 8080]
 - --autodarts_user [Required]
 - --autodarts_password [Required]
 - --autodarts_board_id [Required]
@@ -84,11 +84,78 @@ Click on the shortcut to start the program.
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
 
+#### **--connection**
+
+Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do not need to change this)
+
+#### **--browser_path**
+
+TODO:
+
+#### **--autodarts_user**
+
+TODO:
+
+#### **--autodarts_password**
+
+TODO:
+
+#### **--autodarts_board_id**
+
+TODO:
+
+#### **--extern_platform**
+
+TODO:
+
+#### **--time_before_exit**
+
+TODO:
+
+#### **--lidarts_user**
+
+TODO:
+
+#### **--lidarts_password**
+
+TODO:
+
+#### **--lidarts_skip_dart_modals**
+
+TODO:
+
+#### **--lidarts_chat_message_start**
+
+TODO:
+
+#### **--lidarts_chat_message_end**
+
+TODO:
+
+#### **--nakka_skip_dart_modals**
+
+TODO:
+
+#### **--dartboards_user**
+
+TODO:
+
+#### **--dartboards_password**
+
+TODO:
+
+#### **--dartboards_skip_dart_modals**
+
+TODO:
+
+
+
 ## !!! IMPORTANT !!!
 
 This application requires a running instance of autodarts-caller https://github.com/lbormann/autodarts-caller
-Moreover you need to configure the WTT-argument in autodarts-caller to delegate incoming game-events to this application.
-Let`s say you drive both - the caller and extern on the same machine, then you fill WTT with 'http://127.0.0.1:8080' Do not use 'localhost' as the name needs to be resolved by os that can cost addional time until the game-event reaches wled.
+Moreover you need to configure the CON-argument to subscribe to game-events.
+Let`s say you drive both - the caller and extern on the same machine, then you set CON to '127.0.0.1:8079' (DEFAULT).
+
 
 ## HELPERS
 
@@ -139,6 +206,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - support other games modes (currently only X01 support)
 - Save user-settings in browser
 - delete lidarts-score-input, before typing new one
+- Use WS
 
 
 ## LAST WORDS

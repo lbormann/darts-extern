@@ -1,6 +1,6 @@
 PUSHD .
-node . --browser_path="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^
-       --host_port="8080" ^
+node . --connection="127.0.0.1:8079" ^
+       --browser_path="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^
        --autodarts_user="TODO" ^
        --autodarts_password="TODO" ^
        --autodarts_board_id="TODO" ^
