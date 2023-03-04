@@ -86,7 +86,7 @@ Click on the shortcut to start the program.
 
 #### **--connection**
 
-Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do not need to change this)
+Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do NOT need to change this)
 
 #### **--browser_path**
 
@@ -153,8 +153,6 @@ TODO:
 ## !!! IMPORTANT !!!
 
 This application requires a running instance of autodarts-caller https://github.com/lbormann/autodarts-caller
-Moreover you need to configure the CON-argument to subscribe to game-events.
-Let`s say you drive both - the caller and extern on the same machine, then you set CON to '127.0.0.1:8079' (DEFAULT).
 
 
 ## HELPERS
@@ -207,6 +205,7 @@ It may be buggy. I've just coded it for fast fun with https://autodarts.io. You 
 - Save user-settings in browser
 - delete lidarts-score-input, before typing new one
 - Use WS
+- webcam-game: Fullscreen enemies cam on his turn / leave on my turn
 
 
 ## LAST WORDS

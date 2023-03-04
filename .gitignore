@@ -2,7 +2,7 @@ node_modules
 sessionData
 package-lock.json
 test.js
-win-start-custom.bat
+start-custom.bat
 test-exe.bat
 elements_*.txt
 *.exe

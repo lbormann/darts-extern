@@ -50,6 +50,7 @@ DEBUG = false
 
 let _browser;
 let _page;
+let playerNumber;
 
 
 async function setupExternPlatform(page){
@@ -87,6 +88,14 @@ async function setupLidarts(page){
     await page.$eval('button[type=submit]', el => el.click());
   }
   await page.waitForTimeout(200);
+
+  var username;
+  try {
+    await page.waitForSelector('#user_name', { visible: false });
+    username = await page.$eval('#user_name', (element) => element.getAttribute('data-username'));
+  } catch (error) {
+    console.log(error);
+  }
 
   // decide game-variant
   await page.waitForFunction(
@@ -136,16 +145,31 @@ async function setupLidarts(page){
     );
     const pointsElement = await page.waitForSelector('#p1_score', {visible: true, timeout: 0});
     initialPoints = await (await pointsElement.getProperty('textContent')).jsonValue();
-  }else{
+  }
+  else{
     // Wait for possible bulling-action
     try{
       // closest_to_bull_notification_div
-      await page.waitForSelector('#closest_to_bull_notification', {visible: true, timeout: 2000});
+      await page.waitForSelector('#closest_to_bull_notification', { visible: true, timeout: 2000 });
       await page.waitForSelector('#closest_to_bull_notification', { hidden: true, timeout: 0 });
     }catch(error){
       // no bulling
     }
   }
+
+  // Am I player one or player two in context of lidarts?
+  const actualValue = await page.evaluate(() => {
+    const h3Element = document.querySelector('.card.bg-secondary.text-center.mb-1.p1_turn_name_card h3');
+    return h3Element.innerText;
+  });
+  if (actualValue.toLowerCase() == username.toLowerCase()) {
+    // console.log('I am player one');
+    playerNumber = 'p1';
+  } else {
+    // console.log('I am player two');
+    playerNumber = 'p2';
+  }
+
   return initialPoints;
 }
 async function setupNakka(page){
@@ -385,7 +409,7 @@ async function waitWebcamdartsGame(page){
   return true;
 }
 
-async function inputThrow(page, throwPoints, pointsLeft, variant, autoEnter){
+async function inputThrow(page, throwPoints, pointsLeft, variant, autoEnter, playerNumber){
 
   // fix autodarts stop
   // ✊
@@ -402,7 +426,7 @@ async function inputThrow(page, throwPoints, pointsLeft, variant, autoEnter){
 
   switch (externPlatform) {
     case lidarts:
-      await inputThrowLidarts(page, throwPoints, variant, autoEnter);
+      await inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNumber);
       break;
     case nakka:
       await inputThrowNakka(page, throwPoints);
@@ -415,7 +439,17 @@ async function inputThrow(page, throwPoints, pointsLeft, variant, autoEnter){
       break;
   }
 }
-async function inputThrowLidarts(page, throwPoints, variant, autoEnter){
+async function inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNumber){
+
+  // leave fullscreen if present, type score, enter fullscreen
+  const frame = await page.frames().find(f => f.url().startsWith('https://jitsi'));
+
+  if(frame){
+    // fullscreenButton = await frame.$(`div[aria-label="Vollbildmodus ein-/ausschalten"]`);
+    await page.evaluate(() => {
+      document.exitFullscreen();
+    });
+  }
 
   if(variant == 'X01'){
     await page.focus("#score_value");
@@ -429,7 +463,6 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter){
       await page.keyboard.press('Enter');
     }
     
-
   }else if(variant == 'Cricket'){
     points = throwPoints.split('x');
 
@@ -460,9 +493,12 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter){
     await page.waitForTimeout(150);
     const buttonConfirm = await page.waitForSelector('#score-confirm', {visible: true, timeout: 0});
     await buttonConfirm.click();
-  }else{
+  }
+  else{
     console.log('Variant: ' + variant + ' not supported');
   }
+
+
 
 
   // TODO: correct AD-points when there is a difference to lidarts (currently not possible)
@@ -474,62 +510,65 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter){
 
   // TODO: best-practice..
   if(lidartsSkipDartModals == true || lidartsSkipDartModals == "true" || lidartsSkipDartModals == "True"){
-    await page.waitForTimeout(250);
+
+    // await page.waitForTimeout(250);
     console.log('Lidarts: skip dart modals');
   
-    // <button type="button" class="btn btn-primary double-missed-1 btn-lg mt-2" data-dismiss="modal" id="double-missed-1">1</button>
+    const buttonIds = [
+      'double-missed-0',
+      'double-missed-1',
+      'double-missed-2',
+      'double-missed-3',
+      'to-finish-1',
+      'to-finish-2',
+      'to-finish-3',
+    ];
+    
+    const promises = buttonIds.map((buttonId) => {
+      return page.waitForSelector(`#${buttonId}`, { visible: true, timeout: 0 });
+    });
+    
     try {
-      buttonMissedZero = await page.waitForSelector('#double-missed-0', {visible: true, timeout: 1500});
-      await buttonMissedZero.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('button 0 not there');
+      await Promise.race([
+        Promise.all(promises),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timed out waiting for elements')), 1250)),
+      ]);
+    } catch (error) {
+      // console.log(error);
     }
-    try {
-      buttonMissedOne = await page.waitForSelector('#double-missed-1', {visible: true, timeout: 1500});
-      await buttonMissedOne.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('button 1 not there');
-    }
-    try {
-      buttonMissedTwo = await page.waitForSelector('#double-missed-2', {visible: true, timeout: 1500});
-      await buttonMissedTwo.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('button 2 not there');
-    }
-    try {
-      buttonMissedThree = await page.waitForSelector('#double-missed-3', {visible: true, timeout: 1500});
-      await buttonMissedThree.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('button 3 not there');
-    }
-
-    // <button type="button" class="btn btn-primary btn-lg mt-2" data-dismiss="modal" id="to-finish-3">3</button>
-    try {
-      buttonFinishOne = await page.waitForSelector('#to-finish-1', {visible: true, timeout: 1500});
-      await buttonFinishOne.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('buttonf 1 not there');
-    }
-    try {
-      buttonFinishTwo = await page.waitForSelector('#to-finish-2', {visible: true, timeout: 1500});
-      await buttonFinishTwo.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('buttonf 2 not there');
-    }
-    try {
-      buttonFinishThree = await page.waitForSelector('#to-finish-3', {visible: true, timeout: 1500});
-      await buttonFinishThree.click();
-      await page.waitForTimeout(100);
-    } catch(error) {
-      // console.log('buttonf 3 not there');
+    
+    for (const buttonId of buttonIds) {
+      try {
+        const button = await page.$(`#${buttonId}`);
+        await button.click();
+        await page.waitForTimeout(100);
+      } catch (error) {
+        // console.log(`Button ${buttonId} not there`);
+      }
     }
   }
+
+  if(frame){
+    await page.focus("iframe");
+    await page.keyboard.press('s');
+
+    await page.waitForTimeout(100);
+
+    // console.log('PlayerNumber: ' + playerNumber);
+    const playerBlock = '#' + playerNumber + '_turn_outer_card';
+    await page.waitForFunction((pb) => {
+      // console.log(pb);
+      const element = document.querySelector(pb);
+      return element && element.classList.contains('border-1');
+    }, {}, playerBlock);
+
+    page.evaluate(() => {
+      document.exitFullscreen();
+    });
+  }
+
+
+
 }
 async function inputThrowNakka(page, throwPoints){
   // .score_input .p1score 
@@ -637,7 +676,7 @@ async function inputThrowWebcamdarts(page, throwPoints){
     // }
   }
 }
-
+// 
 
 async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
@@ -770,6 +809,8 @@ async function correctAutodartsPoints(externCurrentPoints, autodartsThrowPoints,
 
 
 
+
+
 console.log('\r\n')
 console.log('##########################################')
 console.log('       WELCOME TO AUTODARTS-EXTERN')
@@ -875,7 +916,7 @@ const ws = new Sockette('ws://' + connection, {
             
             _page
             .then((page) => {
-              inputThrow(page, throwPoints, -1, variant, autoEnter);
+              inputThrow(page, throwPoints, -1, variant, autoEnter, playerNumber);
             });
           }
         }catch(error){
