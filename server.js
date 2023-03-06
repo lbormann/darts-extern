@@ -159,7 +159,9 @@ async function setupLidarts(page){
 
   // Am I player one or player two in context of lidarts?
   const actualValue = await page.evaluate(() => {
-    const h3Element = document.querySelector('.card.bg-secondary.text-center.mb-1.p1_turn_name_card h3');
+    // .card.bg-secondary.text-center.mb-1
+    // h3
+    const h3Element = document.querySelector('.p1_turn_name_card');
     return h3Element.innerText;
   });
   if (actualValue.toLowerCase() == username.toLowerCase()) {
@@ -554,13 +556,17 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNu
 
     await page.waitForTimeout(100);
 
-    // console.log('PlayerNumber: ' + playerNumber);
-    const playerBlock = '#' + playerNumber + '_turn_outer_card';
-    await page.waitForFunction((pb) => {
-      // console.log(pb);
-      const element = document.querySelector(pb);
-      return element && element.classList.contains('border-1');
-    }, {}, playerBlock);
+    try{
+      // console.log('PlayerNumber: ' + playerNumber);
+      const playerBlock = '#' + playerNumber + '_turn_outer_card';
+      await page.waitForFunction((pb) => {
+        // console.log(pb);
+        const element = document.querySelector(pb);
+        return element && element.classList.contains('border-1');
+      }, {timeout: 20000}, playerBlock);
+    } catch (error) {
+      // console.log(error);
+    }
 
     page.evaluate(() => {
       document.exitFullscreen();
