@@ -8,15 +8,12 @@ Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
 ## COMPATIBILITY
 
-x = supported
-o = not (yet) supported
-
 | Platform | Bulling | X01 Single-In, Double-Out | Cricket Standard |
 | ------------- | ------------- | ------------- | ------------- |
-| [Lidarts](https://lidarts.org) | x | x | x |
-| [Nakka01-Online](https://nakka.com/n01/online) | x | x | o |
-| [Dartboards](https://dartboards.online) | o | x | o |
-| [Webcamdarts](https://www.webcamdarts.com/) | o | o | o |
+| [Lidarts](https://lidarts.org) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| [Nakka01-Online](https://nakka.com/n01/online) | :heavy_check_mark: | :heavy_check_mark: | |
+| [Dartboards](https://dartboards.online) | | :heavy_check_mark: | |
+| [Webcamdarts](https://www.webcamdarts.com/) | | | |
 
 Bulling supported does NOT mean it is automated; it only means that it is working properly without crashing the app.
 
