@@ -38,32 +38,52 @@ jobs:
     strategy:
       matrix:
         include:
+          - os: macos-latest
+            TARGET: macos
+            CMD_BUILD: npx pkg -t macos --public --config package.json server.js
+            OUT_FILE_NAME: autodarts-caller.app
+            ASSET_MIME: application/octet-stream
+
+          - os: ubuntu-latest
+            TARGET: ubuntu
+            CMD_BUILD: npx pkg -t linux --public --config package.json server.js
+            OUT_FILE_NAME: autodarts-caller.bin
+            ASSET_MIME: application/octet-stream
+
           - os: windows-latest
             TARGET: windows
             CMD_BUILD: npx pkg -t win --public --config package.json server.js
             OUT_FILE_NAME: autodarts-extern.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
+
+
     steps:
     - uses: actions/checkout@v1
+
     - name: Set up Node 16.13.1
       uses: actions/setup-node@v2
       with:
         node-version: 16.13.1
+
     - name: Install dependencies
       run: |
         npm install
+
     - name: Build with pkg for ${{matrix.TARGET}}
       run: ${{matrix.CMD_BUILD}}
+
     - name: Load Release URL File from release job
       uses: actions/download-artifact@v1
       with:
         name: release_url
+
     - name: Get Release File Name & Upload URL
       id: get_release_info
       shell: bash
       run: |
         value=`cat release_url/release_url.txt`
         echo ::set-output name=upload_url::$value
+
     - name: Upload Release Asset
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
