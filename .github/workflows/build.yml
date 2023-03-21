@@ -41,13 +41,13 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: npx pkg -t macos --public --config package.json server.js
-            OUT_FILE_NAME: autodarts-caller.app
+            OUT_FILE_NAME: autodarts-extern.app
             ASSET_MIME: application/octet-stream
 
           - os: ubuntu-latest
             TARGET: ubuntu
             CMD_BUILD: npx pkg -t linux --public --config package.json server.js
-            OUT_FILE_NAME: autodarts-caller.bin
+            OUT_FILE_NAME: autodarts-extern.bin
             ASSET_MIME: application/octet-stream
 
           - os: windows-latest
