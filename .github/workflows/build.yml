@@ -40,14 +40,14 @@ jobs:
         include:
           - os: macos-latest
             TARGET: macos
-            CMD_BUILD: npx pkg -t macos --public --config package.json server.js --output autodarts-extern.app
-            OUT_FILE_NAME: autodarts-extern.app
+            CMD_BUILD: npx pkg -t macos --public --config package.json server.js --output autodarts-extern-mac
+            OUT_FILE_NAME: autodarts-extern-mac
             ASSET_MIME: application/octet-stream
 
           - os: ubuntu-latest
             TARGET: ubuntu
-            CMD_BUILD: npx pkg -t linux --public --config package.json server.js --output autodarts-extern.bin
-            OUT_FILE_NAME: autodarts-extern.bin
+            CMD_BUILD: npx pkg -t linux --public --config package.json server.js --output autodarts-extern
+            OUT_FILE_NAME: autodarts-extern
             ASSET_MIME: application/octet-stream
 
           - os: windows-latest
