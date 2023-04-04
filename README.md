@@ -19,6 +19,11 @@ Bulling supported does NOT mean it is automated; it only means that it is workin
 
 ## INSTALL INSTRUCTION
 
+### Desktop-OS (cross-platform | Windows - Linux - MacOS)
+
+- If you're running a desktop-driven OS (GUI) it's recommended to use autodarts-desktop: https://github.com/lbormann/autodarts-desktop
+
+
 ### Windows
 
 - Download the executable in the release section.
