@@ -157,10 +157,6 @@ TODO:
 This application requires a running instance of autodarts-caller https://github.com/lbormann/autodarts-caller
 
 
-## HELPERS
-
-If you think it is terrible to configure/start/handling this application then go for autodarts-desktop https://github.com/Semtexmagix/autodarts-desktop
-
 
 ## BUGS
 
