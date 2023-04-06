@@ -1,4 +1,5 @@
 # AUTODARTS-EXTERN
+[![Downloads](https://img.shields.io/github/downloads/lbormann/autodarts-extern/total.svg)](https://github.com/lbormann/autodarts-extern/releases/latest)
 
 Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
