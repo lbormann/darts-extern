@@ -1,7 +1,7 @@
 # AUTODARTS-EXTERN
 
 Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
-A running instance of https://github.com/lbormann/autodarts-caller is needed that sends the thrown points from https://autodarts.io to this application.
+A running instance of https://github.com/lbormann/autodarts-caller is needed that sends thrown points from https://autodarts.io to this application.
 
 Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
@@ -17,16 +17,16 @@ Tested on Windows 11 Pro x64, Nodejs v16.13.1
 
 Bulling supported does NOT mean it is automated; it only means that it is working properly without crashing the app.
 
-## INSTALL INSTRUCTION
 
-### Desktop-OS (cross-platform | Windows - Linux - MacOS)
+### Desktop-OS: Windows - Linux - MacOS
 
-- If you're running a desktop-driven OS (GUI) it's recommended to use autodarts-desktop: https://github.com/lbormann/autodarts-desktop
+- If you're running a desktop-driven OS it's recommended to use [autodarts-desktop](https://github.com/lbormann/autodarts-desktop) as it takes care of starting, updating, configurating and managing multiple apps.
 
 
-### Windows
+### Standalone
 
-- Download the executable in the release section.
+- Download the appropriate executable in the release section.
+
 
 ### Linux / Others
 
@@ -92,63 +92,63 @@ Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:807
 
 #### **--browser_path**
 
-TODO:
+Path to chrome executable
 
 #### **--autodarts_user**
 
-TODO:
+autodarts.io user-email-adress
 
 #### **--autodarts_password**
 
-TODO:
+autodarts.io user-password
 
 #### **--autodarts_board_id**
 
-TODO:
+autodarts.io board-id
 
 #### **--extern_platform**
 
-TODO:
+Setup which platform is your target. Choose between lidarts, nakka, dartboards
 
 #### **--time_before_exit**
 
-TODO:
+How long the app wait before it exits after a match on target platform ended
 
 #### **--lidarts_user**
 
-TODO:
+lidarts user-email-adress
 
 #### **--lidarts_password**
 
-TODO:
+lidarts user-password
 
 #### **--lidarts_skip_dart_modals**
 
-TODO:
+Automates lidarts-dialogs (how many darts did you use)
 
 #### **--lidarts_chat_message_start**
 
-TODO:
+Chat text to send on match start
 
 #### **--lidarts_chat_message_end**
 
-TODO:
+Chat Text to send on match end
 
 #### **--nakka_skip_dart_modals**
 
-TODO:
+Automates nakka-dialogs (how many darts did you use)
 
-#### **--dartboards_user**
+#### **--dartboards_username**
 
-TODO:
+dartboards user-name
 
 #### **--dartboards_password**
 
-TODO:
+dartboards user-password
 
 #### **--dartboards_skip_dart_modals**
 
-TODO:
+Automates dartboards-dialogs (how many darts did you use)
 
 
 
