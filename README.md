@@ -49,7 +49,8 @@ Go to download-directory and type:
 
 ### Prerequisite
 
-You need to have a running caller - https://github.com/lbormann/autodarts-caller - (latest version)
+* You need to have an installed caller - https://github.com/lbormann/autodarts-caller - (latest version)
+* You need to have an installed google chrome browser
 
 
 ### Run by executable (Windows)
@@ -64,7 +65,7 @@ Click on the shortcut to start the program.
 
 ### Run by source
 
-    node . --browser_path="path-to-your-browser-executable" --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts | nakka | dartboards" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password" ... see full list of arguments below
+    node . --browser_path="path-to-your-chrome-browser-executable" --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts | nakka | dartboards" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password" ... see full list of arguments below
 
 
 ### Arguments
@@ -93,7 +94,7 @@ Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:807
 
 #### **--browser_path**
 
-Path to chrome executable
+Absolute path to chrome executable
 
 #### **--autodarts_user**
 
