@@ -4,8 +4,6 @@
 Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends thrown points from https://autodarts.io to this application.
 
-Tested on Windows 11 Pro x64, Nodejs v16.13.1
-
 
 ## COMPATIBILITY
 
@@ -19,17 +17,17 @@ Tested on Windows 11 Pro x64, Nodejs v16.13.1
 Bulling supported does NOT mean it is automated; it only means that it is working properly without crashing the app.
 
 
-### Desktop-OS: Windows - Linux - MacOS
+### Desktop-OS:
 
 - If you're running a desktop-driven OS it's recommended to use [autodarts-desktop](https://github.com/lbormann/autodarts-desktop) as it takes care of starting, updating, configurating and managing multiple apps.
 
 
-### Standalone
+### Standalone:
 
 - Download the appropriate executable in the release section.
 
 
-### Linux / Others
+### By Source:
 
 #### Setup nodejs
 
@@ -94,7 +92,7 @@ Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:807
 
 #### **--browser_path**
 
-Absolute path to chrome executable
+Absolute path to chrome executable. On macos the path to chrome is: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
 #### **--autodarts_user**
 
