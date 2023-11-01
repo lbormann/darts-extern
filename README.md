@@ -86,67 +86,69 @@ Click on the shortcut to start the program.
 - --dartboards_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 
 
-#### **--connection**
+*`--connection`*
 
 Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do NOT need to change this)
 
-#### **--browser_path**
+*`--browser_path`*
 
-Absolute path to chrome executable. On macos the path to chrome is: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+Absolute path to chrome or chromium executable. 
+On Linux-os you can type "whereis chromium" to display installation-path in terminal. Replace "chromium" depending on which browser-package is installed, e.g. "google-chrome", "google-chrome-stable", "chromium-browser". You can also use "which" as an alternative to "whereis".
+On macos the path to google chrome is: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
-#### **--autodarts_user**
+*`--autodarts_user`*
 
 autodarts.io user-email-adress
 
-#### **--autodarts_password**
+*`--autodarts_password`*
 
 autodarts.io user-password
 
-#### **--autodarts_board_id**
+*`--autodarts_board_id`*
 
 autodarts.io board-id
 
-#### **--extern_platform**
+*`--extern_platform`*
 
 Setup which platform is your target. Choose between lidarts, nakka, dartboards
 
-#### **--time_before_exit**
+*`--time_before_exit`*
 
 How long the app wait before it exits after a match on target platform ended
 
-#### **--lidarts_user**
+*`--lidarts_user`*
 
 lidarts user-email-adress
 
-#### **--lidarts_password**
+*`--lidarts_password`*
 
 lidarts user-password
 
-#### **--lidarts_skip_dart_modals**
+*`--lidarts_skip_dart_modals`*
 
 Automates lidarts-dialogs (how many darts did you use)
 
-#### **--lidarts_chat_message_start**
+*`--lidarts_chat_message_start`*
 
 Chat text to send on match start
 
-#### **--lidarts_chat_message_end**
+*`--lidarts_chat_message_end`*
 
 Chat Text to send on match end
 
-#### **--nakka_skip_dart_modals**
+*`--nakka_skip_dart_modals`*
 
 Automates nakka-dialogs (how many darts did you use)
 
-#### **--dartboards_username**
+*`--dartboards_username`*
 
 dartboards user-name
 
-#### **--dartboards_password**
+*`--dartboards_password`*
 
 dartboards user-password
 
-#### **--dartboards_skip_dart_modals**
+*`--dartboards_skip_dart_modals`*
 
 Automates dartboards-dialogs (how many darts did you use)
 
