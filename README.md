@@ -4,6 +4,18 @@
 Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
 A running instance of https://github.com/lbormann/autodarts-caller is needed that sends thrown points from https://autodarts.io to this application.
 
+You will be able to play 1vs1 on supported dart-web-platforms with your autodarts-setup.
+
+Functional principle (Using Lidarts as an example):
+
+1) Automatic opening of the browser.
+2) Automatic login to Lidarts.
+3) You initiate a game on Lidarts.
+4) Once the bulling is finished on Lidarts (if set) and the game starts, another browser tab with autodarts.io will automatically open.
+5) In this tab, you will be logged in automatically, and a game that matches the settings of the Lidarts game will be opened automatically.
+6) You throw, and the scores are normally recognized by autodarts.
+7) As soon as you pull the darts, the score is automatically transferred to the Lidarts game. As long as you don’t pull the darts, you can of course make corrections in autodarts (if necessary).
+
 
 ## COMPATIBILITY
 
