@@ -15,6 +15,7 @@ Functional principle (Using Lidarts as an example):
 5) In this tab, you will be logged in automatically, and a game that matches the settings of the Lidarts game will be opened automatically.
 6) You throw, and the scores are normally recognized by autodarts.
 7) As soon as you pull the darts, the score is automatically transferred to the Lidarts game. As long as you don’t pull the darts, you can of course make corrections in autodarts (if necessary).
+8) As soon as a leg is won on Lidarts by you or your opponent, the open game on autodarts.io is aborted (As a result, no thrown darts are recorded in the autodarts.io statistics)
 
 
 ## COMPATIBILITY
