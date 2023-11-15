@@ -1,6 +1,6 @@
 {
   "name": "autodarts-extern",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Synchronizes an autodarts.io match with extern dart-web-platforms",
   "author": "wusaaa",
   "main": "server.js",

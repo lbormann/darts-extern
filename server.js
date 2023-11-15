@@ -34,7 +34,7 @@ const dartboards = 'dartboards'
 const webcamdarts = 'webcamdarts'
 const supportedExternPlatforms = [lidarts, nakka, dartboards]
 
-const autodartsUrl = "https://autodarts.io";
+const autodartsUrl = "https://play.autodarts.io/";
 const lidartsUrl = "https://lidarts.org/login";
 const nakkaUrl = "https://nakka.com/n01/online/n01_v2/setting.php"
 const dartboardsUrl = "https://dartboards.online"
@@ -720,9 +720,9 @@ async function setupAutodarts(points, nav=true, pageExtern=false){
   }
 
   if(points != 'Cricket'){
-    await page.goto("https://autodarts.io/lobbies/new/x01", {waitUntil: 'networkidle0'});
+    await page.goto(autodartsUrl + "lobbies/new/x01", {waitUntil: 'networkidle0'});
   }else{
-    await page.goto("https://autodarts.io/lobbies/new/cricket", {waitUntil: 'networkidle0'});
+    await page.goto(autodartsUrl + "lobbies/new/cricket", {waitUntil: 'networkidle0'});
   }
   // await page.waitForTimeout(2000); 
 
