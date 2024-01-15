@@ -62,18 +62,8 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y qemu-user-static binfmt-support
               docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-              docker run -v $(pwd):/workdir -w /workdir arm64v8/ubuntu:20.04 apt-get update -y && npm install && npx pkg -t linux --public --config package.json server.js --output autodarts-extern-arm64
+              docker run --rm -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --platform linux/arm64/v8 -v $(pwd):/workdir -w /workdir arm64v8/ubuntu:20.04 bash -c "apt-get update -y && npm install && npx pkg -t linux --public --config package.json server.js --output autodarts-extern-arm64"
             OUT_FILE_NAME: autodarts-extern-arm64
-            ASSET_MIME: application/octet-stream
-
-          - os: ubuntu-latest
-            TARGET: linux-arm
-            CMD_BUILD: |
-              sudo apt-get update
-              sudo apt-get install -y qemu-user-static binfmt-support
-              docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-              docker run -v $(pwd):/workdir -w /workdir arm32v7/ubuntu:20.04 apt-get update -y && npm install && npx pkg -t linux --public --config package.json server.js --output autodarts-extern-arm
-            OUT_FILE_NAME: autodarts-extern-arm
             ASSET_MIME: application/octet-stream
 
 
