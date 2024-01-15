@@ -551,6 +551,7 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNu
   }
 
   if(frame){
+    await page.bringToFront();
     await page.focus("iframe");
     await page.keyboard.press('s');
 
@@ -825,6 +826,7 @@ console.log('VERSION: ' + pjson.version)
 console.log('RUNNING OS: ' + os.type() + ' | ' + os.platform() + ' | ' + os.release())
 console.log('SUPPORTED GAME-VARIANTS: ' + supportedGameVariants)
 console.log('SUPPORTED EXTERN-PLATFORMS: ' + supportedExternPlatforms)
+console.log('DONATION: bitcoin:bc1q8dcva098rrrq2uqhv38rj5hayzrqywhudvrmxa')
 console.log('\r\n')
 
 
