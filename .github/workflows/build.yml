@@ -56,15 +56,16 @@ jobs:
             OUT_FILE_NAME: autodarts-extern.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
 
-          - os: ubuntu-latest
-            TARGET: linux-arm64
-            CMD_BUILD: |
-              sudo apt-get update
-              sudo apt-get install -y qemu-user-static binfmt-support
-              docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-              docker run --rm -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --platform linux/arm64/v8 -v $(pwd):/workdir -w /workdir arm64v8/ubuntu:20.04 bash -c "DEBIAN_FRONTEND=noninteractive apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm && npm install && npx pkg -t linux --public --config package.json server.js --output autodarts-extern-arm64"
-            OUT_FILE_NAME: autodarts-extern-arm64
-            ASSET_MIME: application/octet-stream
+          # CHROMIUM BINARY NOT AVAILABLE FOR ARM64
+          # - os: ubuntu-latest
+          #   TARGET: linux-arm64
+          #   CMD_BUILD: |
+          #     sudo apt-get update
+          #     sudo apt-get install -y qemu-user-static binfmt-support
+          #     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          #     docker run --rm -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --platform linux/arm64/v8 -v $(pwd):/workdir -w /workdir arm64v8/ubuntu:20.04 bash -c "DEBIAN_FRONTEND=noninteractive apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm && npm install && npx pkg -t linux --public --config package.json server.js --output autodarts-extern-arm64"
+          #   OUT_FILE_NAME: autodarts-extern-arm64
+          #   ASSET_MIME: application/octet-stream
 
 
     steps:
