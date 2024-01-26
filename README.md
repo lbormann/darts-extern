@@ -173,54 +173,6 @@ This application requires a running instance of autodarts-caller https://github.
 
 
 
-## BUGS
-
-It may be buggy. I've just coded it for fast fun with https://autodarts.io. You can give me feedback in Discord > wusaaa
-
-
-## TODOs
-
-- auto-correction of AD-game when there is difference to extern-game
-- improve logic for choosing correct extern-missed/finish-darts
-- support projection from extern-platforms to autodarts (multiple players)
-- improve main automation code-structure
-- loop throw-input while it was not successful
-- support https://www.webcamdarts.com/
-- support automatic bulling
-- Fix autodarts-stop
-- cricket does work after variant-recognition
-- fix Cricket: if autodarts gameshot - no point transfer
-- fix: Cricket stuck, when start-message is set
-- start browser with arguments e.g.: --kiosk
-- improve Readme: explain arguments, add example for starting app
-
-
-### Done
-
-- maximize windows
-- disable chromium restore pages function
-- handle throws after busted
-- kill AD-match when lidarts-match finished
-- handle how many darts used in lidarts
-- on new AD-game, choose board automatically
-- stop about-tab
-- support bulling and other game-config stuff
-- prevent dark-/light-mode switch
-- make port configurable
-- add start-script for windows usage
-- add Readme-section for app-updates
-- chat-message start- and end
-- support https://nakka.com/n01/online/
-- support https://dartboards.online
-- add small delay when choosing board in AD
-- add cricket-support lidarts
-- support other games modes (currently only X01 support)
-- Save user-settings in browser
-- delete lidarts-score-input, before typing new one
-- Use WS
-- webcam-game: Fullscreen enemies cam on his turn / leave on my turn
-
-
 ## LAST WORDS
 
 Thanks to Timo for awesome https://autodarts.io. It will be huge!

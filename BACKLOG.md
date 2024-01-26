@@ -1,1 +1,14 @@
-- check nakka online auth
+- improve nakka online auth
+- auto-correction of AD-game when there is difference to extern-game
+- improve logic for choosing correct extern-missed/finish-darts
+- support projection from extern-platforms to autodarts (multiple players)
+- improve main automation code-structure
+- loop throw-input while it was not successful
+- support https://www.webcamdarts.com/
+- support automatic bulling
+- cricket does work after variant-recognition
+- fix Cricket: if autodarts gameshot - no point transfer
+- fix: Cricket stuck, when start-message is set
+- start browser with arguments e.g.: --kiosk
+- improve Readme: explain arguments, add example for starting app
+- start with custom chrome-profile
