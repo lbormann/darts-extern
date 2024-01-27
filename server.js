@@ -445,7 +445,6 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNu
 
   // leave fullscreen if present, type score, enter fullscreen
   const frame = await page.frames().find(f => f.url().startsWith('https://jitsi'));
-
   if(frame){
     // fullscreenButton = await frame.$(`div[aria-label="Vollbildmodus ein-/ausschalten"]`);
     await page.evaluate(() => {
@@ -550,7 +549,7 @@ async function inputThrowLidarts(page, throwPoints, variant, autoEnter, playerNu
     }
   }
 
-  if(frame){
+  if(frame && lidartscamFullscreen == true || lidartscamFullscreen == "true" || lidartscamFullscreen == "True"){
     await page.bringToFront();
     await page.focus("iframe");
     await page.keyboard.press('s');
@@ -873,6 +872,7 @@ const lidartsPassword = args.lidarts_password;
 var lidartsSkipDartModals = args.lidarts_skip_dart_modals;
 var lidartsChatMessageStart = args.lidarts_chat_message_start;
 var lidartsChatMessageEnd = args.lidarts_chat_message_end;
+var lidartscamFullscreen = args.lidarts_cam_fullscreen;
 var nakkaSkipDartModals = args.nakka_skip_dart_modals;
 const dartboardsUser = args.dartboards_user;
 const dartboardsPassword = args.dartboards_password;
@@ -894,6 +894,9 @@ if(!lidartsChatMessageStart){
 }
 if(!lidartsChatMessageEnd){
   lidartsChatMessageEnd = "";
+}
+if(!lidartscamFullscreen){
+  lidartscamFullscreen = true;
 }
 if(!nakkaSkipDartModals){
   nakkaSkipDartModals = false;

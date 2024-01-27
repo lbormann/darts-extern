@@ -12,3 +12,4 @@
 - start browser with arguments e.g.: --kiosk
 - improve Readme: explain arguments, add example for starting app
 - start with custom chrome-profile
+- add license

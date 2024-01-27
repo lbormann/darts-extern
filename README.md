@@ -93,6 +93,7 @@ Click on the shortcut to start the program.
 - --lidarts_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 - --lidarts_chat_message_start [Optional]
 - --lidarts_chat_message_end [Optional]
+- --lidarts_cam_fullscreen [Optional]
 - --nakka_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 - --dartboards_user [Required for extern_platform=dartboards]
 - --dartboards_password [Required for extern_platform=dartboards]
@@ -148,6 +149,10 @@ Chat text to send on match start
 *`--lidarts_chat_message_end`*
 
 Chat Text to send on match end
+
+*`--lidarts_cam_fullscreen`*
+
+Fullscreens opponent`s camera
 
 *`--nakka_skip_dart_modals`*
 

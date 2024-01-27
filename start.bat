@@ -11,6 +11,7 @@ node . --connection="127.0.0.1:8079" ^
        --lidarts_skip_dart_modals="true" ^
        --lidarts_chat_message_start="Hi, GD! Automated darts-scoring - powered by autodarts.io" ^
        --lidarts_chat_message_end="Thanks GG, WP!" ^
+       --lidarts_cam_fullscreen="true" ^
        --nakka_skip_dart_modals="true" ^
        --dartboards_user="TODO" ^
        --dartboards_password="TODO" ^

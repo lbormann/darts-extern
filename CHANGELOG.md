@@ -2,7 +2,7 @@
 
 - add CHANGELOG
 - add BACKLOG
-- make fullscreen optional
+- make cam fullscreen optional
 
 
 ## 0.0.0
