@@ -93,7 +93,7 @@ Click on the shortcut to start the program.
 - --lidarts_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 - --lidarts_chat_message_start [Optional]
 - --lidarts_chat_message_end [Optional]
-- --lidarts_cam_fullscreen [Optional]
+- --lidarts_cam_fullscreen [Optional] [Default: true] [Possible values: true|false]
 - --nakka_skip_dart_modals [Optional] [Default: false] [Possible values: true|false]
 - --dartboards_user [Required for extern_platform=dartboards]
 - --dartboards_password [Required for extern_platform=dartboards]
