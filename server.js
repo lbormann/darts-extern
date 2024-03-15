@@ -909,8 +909,8 @@ if(!webcamdartsSkipDartModals){
 }
 
 
-
-const ws = new Sockette('ws://' + connection, {
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+const ws = new Sockette('wss://' + connection, {
   onopen: e => console.log('Connected to ', connection),
   onmessage: function(event) {
         try{

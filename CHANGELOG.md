@@ -1,3 +1,8 @@
+## 1.5.9
+
+- add wss support
+
+
 ## 1.5.8
 
 - add CHANGELOG
