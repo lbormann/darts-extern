@@ -11,8 +11,8 @@ const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
 const { exit } = require('process');
-global.WebSocket = require('ws');
-const Sockette = require('sockette');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+const WebSocket = require('ws');
 
 // Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
 // STORAGE DOES NOT WORK WITH STEALTH
@@ -812,6 +812,43 @@ async function correctAutodartsPoints(externCurrentPoints, autodartsThrowPoints,
 }
 
 
+function connectDataFeeder(url, callback) {
+  const ws = new WebSocket(url);
+
+  ws.on('open', () => {
+    console.log('Connected to ', url);
+    callback(null, ws);
+  });
+
+  ws.on('message', (data) => {
+    try {
+      const body = JSON.parse(data);
+      // console.log(typeof body);
+      // console.log(body);
+
+      if (body.event == 'darts-pulled' || body.event == 'game-won' || body.event == 'match-won') {
+        const throwPoints = body.game.dartsThrownValue;
+        const variant = body.game.mode;
+        const autoEnter = !(body.event == 'game-won' || body.event == 'match-won');
+
+        console.log('Received event: ' + body.event);
+
+        _page
+          .then((page) => {
+            inputThrow(page, throwPoints, -1, variant, autoEnter, playerNumber);
+          });
+      }
+    } catch (error) {
+      console.log("Parsing request failed.");
+    }
+  });
+
+  ws.on('error', (error) => {
+    console.log('WebSocket error:', error);
+    callback(error, null);
+  });
+}
+
 
 
 
@@ -909,35 +946,20 @@ if(!webcamdartsSkipDartModals){
 }
 
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-const ws = new Sockette('wss://' + connection, {
-  onopen: e => console.log('Connected to ', connection),
-  onmessage: function(event) {
-        try{
-          var body = JSON.parse(event.data);
-          // console.log(typeof body);
-          // console.log(body);
-
-          if(body.event == 'darts-pulled' || body.event == 'game-won' || body.event == 'match-won'){
-            var throwPoints = body.game.dartsThrownValue;
-            var variant = body.game.mode;
-            var autoEnter = !(body.event == 'game-won' || body.event == 'match-won');
-
-            console.log('Received event: ' + body.event);
-            
-            _page
-            .then((page) => {
-              inputThrow(page, throwPoints, -1, variant, autoEnter, playerNumber);
-            });
-          }
-        }catch(error){
-          console.log("Parsing request failed.");
-        }
-  },
-  // onreconnect: e => console.log('Reconnecting...', e),
-  // onmaximum: e => console.log('Stop Attempting!', e),
-  // onclose: e => console.log('Closed!', e),
-  onerror: e => console.log('Error:', e)
+var ws;
+connectDataFeeder('wss://' + connection, (err, wssSocket) => {
+  if (err) {
+    console.log('Failed to connect via wss, falling back to ws...');
+    connectDataFeeder('ws://' + connection, (err, wsSocket) => {
+      if (err) {
+        console.log('Failed to connect via ws as well.');
+      } else {
+        ws = wsSocket
+      }
+    });
+  } else {
+    ws = wssSocket
+  }
 });
 
 
