@@ -11,8 +11,8 @@ const args = require('minimist')(process.argv.slice(2));
 const os = require('os');
 const pjson = require('./package.json');
 const { exit } = require('process');
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const WebSocket = require('ws');
+const io = require('socket.io-client');
 
 // Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
 // STORAGE DOES NOT WORK WITH STEALTH
@@ -51,6 +51,7 @@ DEBUG = false
 let _browser;
 let _page;
 let playerNumber;
+var ws;
 
 
 async function setupExternPlatform(page){
@@ -681,8 +682,7 @@ async function inputThrowWebcamdarts(page, throwPoints){
     //   // console.log('buttonf 3 not there');
     // }
   }
-}
-// 
+} 
 
 async function setupAutodarts(points, nav=true, pageExtern=false){
   if(nav == true){
@@ -812,43 +812,68 @@ async function correctAutodartsPoints(externCurrentPoints, autodartsThrowPoints,
 }
 
 
-function connectDataFeeder(url, callback) {
-  const ws = new WebSocket(url);
+function connectSocketIo(url, options) {
+  return new Promise((resolve, reject) => {
+    ws = io(url, options);
 
-  ws.on('open', () => {
-    console.log('Connected to ', url);
-    callback(null, ws);
-  });
+    ws.on('connect', () => {
+      console.log('Connected to ' + url);
+      resolve(ws);
+    });
+    ws.on('connect_error', (error) => {
+      console.log(`Connect to ${url} failed: ${error.message}`);
+      reject(new Error('Connect failed'));
+    });
 
-  ws.on('message', (data) => {
-    try {
-      const body = JSON.parse(data);
-      // console.log(typeof body);
-      // console.log(body);
+    ws.on('message', (body) => {
+      try {
+        if (body.event == 'darts-pulled' || body.event == 'game-won' || body.event == 'match-won') {
+          const throwPoints = body.game.dartsThrownValue;
+          const variant = body.game.mode;
+          const autoEnter = !(body.event == 'game-won' || body.event == 'match-won');
 
-      if (body.event == 'darts-pulled' || body.event == 'game-won' || body.event == 'match-won') {
-        const throwPoints = body.game.dartsThrownValue;
-        const variant = body.game.mode;
-        const autoEnter = !(body.event == 'game-won' || body.event == 'match-won');
+          console.log('Received event: ' + body.event);
 
-        console.log('Received event: ' + body.event);
-
-        _page
-          .then((page) => {
-            inputThrow(page, throwPoints, -1, variant, autoEnter, playerNumber);
-          });
+          _page
+            .then((page) => {
+              inputThrow(page, throwPoints, -1, variant, autoEnter, playerNumber);
+            });
+        }
+      } catch (error) {
+        console.log("Parsing request failed.");
       }
-    } catch (error) {
-      console.log("Parsing request failed.");
-    }
-  });
+    });
 
-  ws.on('error', (error) => {
-    console.log('WebSocket error:', error);
-    callback(error, null);
   });
 }
-
+async function connectToServer(connection) {
+  try {
+    const wsUrl = 'ws://' + connection;
+    const wsOptions = {
+      transports: ['websocket'],
+      reconnection: false,
+      timeout: 3000,
+    };
+    ws = await connectSocketIo(wsUrl, wsOptions);
+    return ws;
+  } catch (error) {
+    try {
+      const wssUrl = 'wss://' + connection;
+      const wssOptions = {
+        transports: ['websocket'],
+        rejectUnauthorized: false,
+        reconnection: true,
+        reconnectionDelay: 2000,
+        reconnectionDelayMax: 5000,
+        timeout: 3000,
+      };
+      ws = await connectSocketIo(wssUrl, wssOptions);
+      return ws;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
 
 
 
@@ -946,44 +971,42 @@ if(!webcamdartsSkipDartModals){
 }
 
 
-var ws;
-connectDataFeeder('wss://' + connection, (err, wssSocket) => {
-  if (err) {
-    console.log('Failed to connect via wss, falling back to ws...');
-    connectDataFeeder('ws://' + connection, (err, wsSocket) => {
-      if (err) {
-        console.log('Failed to connect via ws as well.');
-      } else {
-        ws = wsSocket
-      }
+
+
+
+async function main() {
+  connectToServer(connection)
+    .then((websocket) => {
+      ws = websocket;
+    })
+    .catch((error) => {
+      console.error('Can not connect to server', error);
     });
-  } else {
-    ws = wssSocket
-  }
-});
+
+  puppeteer
+  .launch({
+    userDataDir: 'sessionData',
+    executablePath: browserPath,
+    headless: false, 
+    defaultViewport: {width: 0, height: 0},
+    devtools: DEBUG,
+    args: [ '--start-maximized', '--hide-crash-restore-bubble'],
+  })
+  .then((browser) => (_browser = browser))
+  .then((browser) => (_page = browser.newPage())
+  .then((page) => {
+
+        setupExternPlatform(page).then((points) => {
+          waitExternMatch(page);
+          setupAutodarts(points);
+        });
+
+        waitExternGame(page).then((val) => {
+        loopAutodarts();
+        });
+          
+  }));
+}
 
 
-
-puppeteer
-.launch({
-  userDataDir: 'sessionData',
-  executablePath: browserPath,
-  headless: false, 
-  defaultViewport: {width: 0, height: 0},
-  devtools: DEBUG,
-  args: [ '--start-maximized', '--hide-crash-restore-bubble'],
-})
-.then((browser) => (_browser = browser))
-.then((browser) => (_page = browser.newPage())
-.then((page) => {
-
-      setupExternPlatform(page).then((points) => {
-        waitExternMatch(page);
-        setupAutodarts(points);
-      });
-
-      waitExternGame(page).then((val) => {
-       loopAutodarts();
-      });
-        
-}));
+main();
