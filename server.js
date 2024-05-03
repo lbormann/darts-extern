@@ -881,7 +881,7 @@ async function connectToServer(connection) {
 
 console.log('\r\n')
 console.log('##########################################')
-console.log('       WELCOME TO AUTODARTS-EXTERN')
+console.log('       WELCOME TO DARTS-EXTERN')
 console.log('##########################################')
 console.log('VERSION: ' + pjson.version)
 console.log('RUNNING OS: ' + os.type() + ' | ' + os.platform() + ' | ' + os.release())
