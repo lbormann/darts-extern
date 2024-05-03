@@ -1,8 +1,8 @@
-# AUTODARTS-EXTERN
-[![Downloads](https://img.shields.io/github/downloads/lbormann/autodarts-extern/total.svg)](https://github.com/lbormann/autodarts-extern/releases/latest)
+# DARTS-EXTERN
+[![Downloads](https://img.shields.io/github/downloads/lbormann/darts-extern/total.svg)](https://github.com/lbormann/darts-extern/releases/latest)
 
-Autodarts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io match. 
-A running instance of https://github.com/lbormann/autodarts-caller is needed that sends thrown points from https://autodarts.io to this application.
+Darts-extern automates multiple dart-web-platforms accordingly to the state of an https://autodarts.io game. 
+A running instance of https://github.com/lbormann/darts-caller is needed that sends thrown points from https://autodarts.io to this application.
 
 You will be able to play 1vs1 on supported dart-web-platforms with your autodarts-setup.
 
@@ -32,7 +32,7 @@ Bulling supported does NOT mean it is automated; it only means that it is workin
 
 ### Desktop-OS:
 
-- If you're running a desktop-driven OS it's recommended to use [autodarts-desktop](https://github.com/lbormann/autodarts-desktop) as it takes care of starting, updating, configurating and managing multiple apps.
+- If you're running a desktop-driven OS it's recommended to use [darts-hub](https://github.com/lbormann/darts-hub) as it takes care of starting, updating, configurating and managing multiple apps.
 
 
 ### Standalone:
@@ -49,7 +49,7 @@ Bulling supported does NOT mean it is automated; it only means that it is workin
 
 #### Get the project
 
-    git clone https://github.com/lbormann/autodarts-extern.git
+    git clone https://github.com/lbormann/darts-extern.git
 
 Go to download-directory and type:
 
@@ -60,7 +60,7 @@ Go to download-directory and type:
 
 ### Prerequisite
 
-* You need to have an installed caller - https://github.com/lbormann/autodarts-caller - (latest version)
+* You need to have an installed caller - https://github.com/lbormann/darts-caller - (latest version)
 * You need to have an installed google chrome browser
 
 
@@ -68,7 +68,7 @@ Go to download-directory and type:
 
 Create a shortcut of the executable; right click on the shortcut -> select properties -> add arguments in the target input at the end of the text field.
 
-Example: C:\Downloads\autodarts-extern.exe --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password"
+Example: C:\Downloads\darts-extern.exe --autodarts_user="your-autodarts-email" -autodarts_password="your-autodarts-password" --autodarts_board_id="your-autodarts-board-id" --extern_platform="lidarts" --lidarts_user="your-lidarts-email>" --lidarts_password="your-lidarts-password"
 
 Save changes.
 Click on the shortcut to start the program.
@@ -102,7 +102,7 @@ Click on the shortcut to start the program.
 
 *`--connection`*
 
-Host address to data-feeder (autodarts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do NOT need to change this)
+Host address to data-feeder (darts-caller). By Default this is 127.0.0.1:8079 (means your local ip-address / usually you do NOT need to change this)
 
 *`--browser_path`*
 
@@ -174,7 +174,7 @@ Automates dartboards-dialogs (how many darts did you use)
 
 ## !!! IMPORTANT !!!
 
-This application requires a running instance of autodarts-caller https://github.com/lbormann/autodarts-caller
+This application requires a running instance of darts-caller https://github.com/lbormann/darts-caller
 
 
 

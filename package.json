@@ -1,7 +1,7 @@
 {
-  "name": "autodarts-extern",
-  "version": "1.5.10",
-  "description": "Synchronizes an autodarts.io match with extern dart-web-platforms",
+  "name": "darts-extern",
+  "version": "1.6.0",
+  "description": "Synchronizes an autodarts.io game with extern dart-web-platforms",
   "author": "wusaaa",
   "main": "server.js",
   "scripts": {

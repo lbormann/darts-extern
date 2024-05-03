@@ -1,3 +1,8 @@
+## 1.6.0
+
+- rename application to darts-extern
+
+
 ## 1.5.10
 
 - switch to socketio-client
